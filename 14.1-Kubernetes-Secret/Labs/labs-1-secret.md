@@ -2,34 +2,31 @@
 
 * Tab 1
 ```
-controlplane $ 
-controlp
-controlplane $ 
 controlplane $ mkdir -p My-Project
 controlplane $ 
 controlplane $ cd My-Project/
-controlplane $ 
-controlplane $ echo 'user > username.txt'
-user > username.txt
-controlplane $ 
+```
+```
 controlplane $ echo 'user' > username.txt 
 controlplane $ 
 controlplane $ echo 'admin' > password.txt
-controlplane $ 
+```
+```
 controlplane $ kubectl create secret generic user-cred \--from-file=./username.txt --from-file=./password.txt
 secret/user-cred created
-controlplane $ 
-controlplane $ 
-controlplane $ 
+```
+```
 controlplane $ kubectl get secrets 
 NAME        TYPE     DATA   AGE
 user-cred   Opaque   2      17s
-controlplane $ 
+```
+```
 controlplane $ kubectl get secrets -o wide
 NAME        TYPE     DATA   AGE
 user-cred   Opaque   2      69s
-controlplane $ 
-controlplane $ kubectl get secrets -o yaml
+```
+* # controlplane $ kubectl get secrets -o yaml
+```yml
 apiVersion: v1
 items:
 - apiVersion: v1
@@ -47,25 +44,28 @@ items:
 kind: List
 metadata:
   resourceVersion: ""
-controlplane $ 
+```
+```
 controlplane $ kubectl create namespace stage
 namespace/stage created
-controlplane $ 
+```
+```
 controlplane $ kubectl -n stage create secret generic user-cred \--from-file=./username.txt --from-file=./password.txt
 secret/user-cred created
-controlplane $ 
+```
+```
 controlplane $ kubectl -n stage create secret generic user-cred-2 \--from-file=./username.txt --from-file=./password.txt
 secret/user-cred-2 created
-controlplane $ 
-controlplane $ kubectl -n stage get secre     
-error: the server doesn't have a resource type "secre"
-controlplane $ 
+```
+```
 controlplane $ kubectl -n stage get secrets 
 NAME          TYPE     DATA   AGE
 user-cred     Opaque   2      48s
 user-cred-2   Opaque   2      34s
-controlplane $ 
-controlplane $ kubectl -n stage get secrets -o yaml
+```
+```
+* controlplane $ kubectl -n stage get secrets -o yaml
+```yml
 apiVersion: v1
 items:
 - apiVersion: v1
@@ -95,9 +95,6 @@ items:
 kind: List
 metadata:
   resourceVersion: ""
-controlplane $ 
-controlplane $ 
-controlplane $ 
 ```
 * Tab 2
 
@@ -131,12 +128,13 @@ domain-cert   kubernetes.io/tls   2      10m
 controlplane $ kubectl get secret
 NAME          TYPE                DATA   AGE
 domain-cert   kubernetes.io/tls   2      10m
-controlplane $ 
-controlplane $ 
+```
+```
 controlplane $ kubectl get secret domain-cert
 NAME          TYPE                DATA   AGE
 domain-cert   kubernetes.io/tls   2      10m
-controlplane $ 
+```
+```
 controlplane $ kubectl describe secret domain-cert
 Name:         domain-cert
 Namespace:    default
@@ -163,15 +161,15 @@ metadata:
   resourceVersion: "3368"
   uid: 599cc3dd-89be-42e5-ae07-0016456fb975
 type: kubernetes.io/tls
-controlplane $ 
-controlplane $ 
-controlplane $ 
+```
+```
 controlplane $ kubectl get secret domain-cert -o json
+```
+```json
 {
     "apiVersion": "v1",
     "data": {
-        "tls.crt": "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZiVENDQTFXZ0F3SUJBZ0lVRk01K0ZDbFAwcVd0ZEdmRkppOHppYVJzQU5rd0RRWUpLb1pJaHZjTkFRRUwK
-        hSY0J6awpVcXo4aElGUTRBOGNHbGMvd091UHN3YXpiRVVnSUQ5a1lvbE9tQzY2U0ZraENtU01UOVVuSk9wUXlZTUkKLS0tLS1FTkQgUlNBIFBSSVZBVEUgS0VZLS0tLS0K"
+        "tls.crt": "LS0tLS1CNBIFBSSVZBVEUgS0VZLS0tLS0K"
     },
     "kind": "Secret",
     "metadata": {
@@ -183,12 +181,14 @@ controlplane $ kubectl get secret domain-cert -o json
     },
     "type": "kubernetes.io/tls"
 }
-controlplane $ 
-controlplane $ 
+```
+```
 controlplane $ kubectl get secrets -o json > secrets.json
-controlplane $ 
+```
+```
 controlplane $ kubectl get secret domain-cert -o yaml > domain-cert.yml
-controlplane $ 
+```
+```
 controlplane $ ls -lha
 total 32K
 drwxr-xr-x 2 root root 4.0K Jul 27 18:01 .
@@ -197,13 +197,15 @@ drwx------ 6 root root 4.0K Jul 27 17:47 ..
 -rw------- 1 root root 3.2K Jul 27 17:47 cert.key
 -rw-r--r-- 1 root root 7.0K Jul 27 18:01 domain-cert.yml
 -rw-r--r-- 1 root root 7.4K Jul 27 18:01 secrets.json
-controlplane $ 
+```
+```
 controlplane $ cat domain-cert.yml 
+```
+```yml
 apiVersion: v1
 data:
-  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUZiVEND==cXZaVzBpSWpYTHY5c21MekFNcE5qbGRjVGltdgpDZz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
-  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlKS1FJQkFBS0NBZ0VBclVuYjdCSWZGeGZrelBHSTNUMFBDUXpTV0dqb0xVaEpGSUthVFNLOExzd0NPZGNRCn
-  J6awpVcXo4aElGUTRBOGNHbGMvd091UHN3YXpiRVVnSUQ5a1lvbE9tQzY2U0ZraENtU01UOVVuSk9wUXlZTUkKLS0tLS1FTkQgUlNBIFBSSVZBVEUgS0VZLS0tLS0K
+  tls.crt: LS0tLS1CRUDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUpGSUthVFNLOExzd0NPZGNRCn
 kind: Secret
 metadata:
   creationTimestamp: "2022-07-27T17:49:41Z"
@@ -212,9 +214,11 @@ metadata:
   resourceVersion: "3368"
   uid: 599cc3dd-89be-42e5-ae07-0016456fb975
 type: kubernetes.io/tls
-controlplane $ 
-controlplane $ 
+```
+```
 controlplane $ cat secrets.json 
+```
+```json
 {
     "apiVersion": "v1",
     "items": [
@@ -243,12 +247,12 @@ controlplane $ cat secrets.json
         "resourceVersion": ""
     }
 }
-controlplane $ 
-controlplane $ 
-controlplane $ 
+```
+```
 controlplane $ kubectl delete secret domain-cert
 secret "domain-cert" deleted
-controlplane $ 
+```
+```
 controlplane $ ls -lha
 total 32K
 drwxr-xr-x 2 root root 4.0K Jul 27 18:01 .
@@ -257,13 +261,16 @@ drwx------ 6 root root 4.0K Jul 27 17:47 ..
 -rw------- 1 root root 3.2K Jul 27 17:47 cert.key
 -rw-r--r-- 1 root root 7.0K Jul 27 18:01 domain-cert.yml
 -rw-r--r-- 1 root root 7.4K Jul 27 18:01 secrets.json
-controlplane $ 
+```
+```
 controlplane $ kubectl describe secret domain-cert
 Error from server (NotFound): secrets "domain-cert" not found
-controlplane $ 
+```
+```
 controlplane $ kubectl apply -f domain-cert.yml
 secret/domain-cert created
-controlplane $ 
+```
+```
 controlplane $ kubectl describe secret domain-cert
 Name:         domain-cert
 Namespace:    default
@@ -276,7 +283,6 @@ Data
 ====
 tls.crt:  1944 bytes
 tls.key:  3243 bytes
-controlplane $ 
 ```
 
 
