@@ -193,9 +193,10 @@ domain-cert   kubernetes.io/tls   2      4s
 
 * Выберите любимый образ контейнера, например, BusyBox
 * подключите секреты. Это значит пересобрать контейнер с переменными окружения 
-* `ENV SUPER_USER=YWRtaW4K`
-* `ENV PASS_W=cGFzc3dvcmQK`
-* `ENV DATABASE_URL=postgres://postgres:postgres@db:5432/news`
+* Создать Dockerfile
+  * `ENV SUPER_USER=YWRtaW4K`
+  * `ENV PASS_W=cGFzc3dvcmQK`
+  * `ENV DATABASE_URL=postgres://postgres:postgres@db:5432/news`
 * проверьте их доступность
   * экспортировать переменные в файл `bashrc` 
   * как в виде переменных окружения,  - вывод команды env. В этом случае указать в файле secret.yml эти переменные окружения с логином и паролем
