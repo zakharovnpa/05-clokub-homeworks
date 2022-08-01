@@ -191,13 +191,67 @@ domain-cert   kubernetes.io/tls   2      4s
 
 ### Ход решения:
 
-* Выберите любимый образ контейнера, 
-* подключите секреты
+* Выберите любимый образ контейнера, например, BusyBox
+* подключите секреты. Это значит пересобрать контейнер с переменными окружения 
+* `ENV SUPER_USER=YWRtaW4K`
+* `ENV PASS_W=cGFzc3dvcmQK`
+* `ENV DATABASE_URL=postgres://postgres:postgres@db:5432/news`
 * проверьте их доступность
-  * как в виде переменных окружения, 
-  * так и в виде примонтированного тома.
+  * экспортировать переменные в файл `bashrc` 
+  * как в виде переменных окружения,  - вывод команды env. В этом случае указать в файле secret.yml эти переменные окружения с логином и паролем
+  * так и в виде примонтированного тома. - показать файл секрета. Монтировать только как eptydir. Это позволит хранить секреты в оперативной памяти, а не на диске
 
+#### secret.yaml
+```yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque
+data:
+  superuser: $SUPER_USER
+  password: $PASS_W
+#  superuser: YWRtaW4K
+#  password: cGFzc3dvcmQK
+```
 
+#### Экспорт переменых
+```
+echo 'export SUPER_USER="YWRtaW4K"' >> ~/.bashrc
+
+echo 'export PASS_W="cGFzc3dvcmQK"' >> ~/.bashrc
+```
+
+#### Пример монтирования секрета
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+  ports:
+  - containerPort: 80
+    protocol: TCP
+  - containerPort: 443
+    protocol: TCP
+  volumeMounts:
+  - name: certs
+    mountPath: "/etc/nginx/ssl"
+    readOnly: true
+  - name: config
+    mountPath: /etc/nginx/conf.d
+    readOnly: true
+  volumes:
+  - name: certs
+    secret:
+      secretName: domain-cert
+  - name: config
+    configMap:
+      name: nginx-config
+```
 
 
 ---
