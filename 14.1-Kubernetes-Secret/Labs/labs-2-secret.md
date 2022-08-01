@@ -24,7 +24,8 @@ controlplane $ ls
 cert.key
 controlplane $ 
 ```
-![screen-cert-key](screen-cert-key.png)
+![screen-cert-key](/14.1-Kubernetes-Secret/Files/screen-cert-key.png)
+
 2. На основе ключа гегерируем сертификат
 ```
 controlplane $ openssl req -x509 -new -key cert.key -days 3650 -out cert.crt \
@@ -34,7 +35,8 @@ controlplane $ openssl req -x509 -new -key cert.key -days 3650 -out cert.crt \
 controlplane $ ls
 cert.crt  cert.key
 ```
-![screen-cert-crt](screen-cert-crt.png)
+![screen-cert-crt](/14.1-Kubernetes-Secret/Files/screen-cert-crt.png)
+
 
 3. Создаем в Kubernetes Секрет tls на основе сгенерированных ключа и сертификата
 
@@ -42,9 +44,6 @@ cert.crt  cert.key
 controlplane $ kubectl create secret tls domain-cert --cert=cert.crt --key=cert.key
 secret/domain-cert created
 ```
-#### Ответ: создан объект "Secret" в кластере Kubernetes
-
-
 ### 2. Как просмотреть список секретов?
 ```
 kubectl get secrets
@@ -76,7 +75,6 @@ kind: List
 metadata:
   resourceVersion: ""
 ```
-
 ### 3. Как просмотреть секрет?
 
 ```
@@ -141,9 +139,7 @@ type: kubernetes.io/tls
 }
         
 ```
-
 ### 5. Как выгрузить секрет и сохранить его в файл?
-
 ```
 kubectl get secrets -o json > secrets.json
 kubectl get secret domain-cert -o yaml > domain-cert.yml
@@ -161,7 +157,6 @@ total 24
 -rw-r--r-- 1 root root 7546 Aug  1 14:21 secrets.json
 controlplane $ 
 ```
-
 ### 5. Как удалить секрет?
 ```
 kubectl delete secret domain-cert
@@ -173,9 +168,7 @@ controlplane $
 controlplane $ kubectl get secret domain-cert        
 Error from server (NotFound): secrets "domain-cert" not found
 ```
-
 ### 6. Как загрузить секрет из файла?
-
 ```
 kubectl apply -f domain-cert.yml
 ```
