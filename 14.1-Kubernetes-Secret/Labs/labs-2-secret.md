@@ -230,6 +230,10 @@ spec:
 #### Логи
 
 ```
+controlplane $ kubectl apply -f .
+pod/pod-learn-secret created
+```
+```
 controlplane $ kubectl get po
 NAME               READY   STATUS    RESTARTS   AGE
 pod-learn-secret   1/1     Running   0          16s
@@ -251,7 +255,7 @@ KUBERNETES_SERVICE_PORT=443
 TERM=xterm
 HOME=/root
 ```
-* Пустые ответы содержания переменных
+* Пустые ответы содержания переменных при запросе без авотризации в контейнере
 ```
 controlplane $ kubectl exec pod-learn-secret -it sh -- echo $SUPER_USER
 
@@ -259,7 +263,7 @@ controlplane $
 controlplane $ kubectl exec pod-learn-secret -it sh -- echo $PASS_W    
 
 ```
-* Показаны переменные и их содержимое
+* Показаны переменные и их содержимое при запросе с авторизацией в контейнере
 ```
 controlplane $ kubectl exec pod-learn-secret -it sh                
 kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
