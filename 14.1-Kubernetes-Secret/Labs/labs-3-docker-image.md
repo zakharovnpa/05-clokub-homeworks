@@ -18,7 +18,7 @@ CMD sleep 3600
 
 
 
-### Пример успешной сборки. Переменные читаются
+### Пример тестовой успешной сборки. Переменные читаются
 ```
 ubuntu $ docker build -t zakharovnpa/k8s-busybox:01.08.22-2 .
 Sending build context to Docker daemon  2.048kB
@@ -83,9 +83,42 @@ ENV PASS_W=cGFzc3dvcmQK
 
 CMD sleep 3600
 ```
+### Практическое создание образа и загрузка в реджистри
+```
+root@PC-Ubuntu:~/learning-kubernetis/secret# docker build -t zakharovnpa/k8s-busybox:02.08.22 .
+Sending build context to Docker daemon  2.048kB
+Step 1/4 : FROM busybox
+latest: Pulling from library/busybox
+50783e0dfb64: Pull complete 
+Digest: sha256:ef320ff10026a50cf5f0213d35537ce0041ac1d96e9b7800bafd8bc9eff6c693
+Status: Downloaded newer image for busybox:latest
+ ---> 7a80323521cc
+Step 2/4 : ENV SUPER_USER=YWRtaW4K
+ ---> Running in ea905215a69c
+Removing intermediate container ea905215a69c
+ ---> f8d3dcc59b7b
+Step 3/4 : ENV PASS_W=cGFzc3dvcmQK
+ ---> Running in 88fa2ab2329e
+Removing intermediate container 88fa2ab2329e
+ ---> 89cef3d06bfa
+Step 4/4 : CMD sleep 3600
+ ---> Running in 66c3b1eaab52
+Removing intermediate container 66c3b1eaab52
+ ---> 9a661c880882
+Successfully built 9a661c880882
+Successfully tagged zakharovnpa/k8s-busybox:02.08.22
+root@PC-Ubuntu:~/learning-kubernetis/secret# 
+root@PC-Ubuntu:~/learning-kubernetis/secret# docker image list | grep busybox
+zakharovnpa/k8s-busybox                                             02.08.22          9a661c880882   About a minute ago   1.24MB
+busybox                                                             latest            7a80323521cc   3 days ago           1.24MB
+root@PC-Ubuntu:~/learning-kubernetis/secret# 
+root@PC-Ubuntu:~/learning-kubernetis/secret# docker push zakharovnpa/k8s-busybox:02.08.22
+The push refers to repository [docker.io/zakharovnpa/k8s-busybox]
+084326605ab6: Mounted from library/busybox 
+02.08.22: digest: sha256:ca18e2401ab009f346871abbb543c3f50dbe372f100fdc2f835d92379365c25d size: 527
+```
 
-
-### Пример неуспешной сборки. Переменные не читаются
+### Пример неуспешной сборки. Переменные не читаются. Причина - неверный знак " : ". Должен быть " = ". 
 ```
 ubuntu $ docker ps
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
@@ -107,9 +140,9 @@ ubuntu $
 ubuntu $ cat Dockerfile 
 FROM busybox
 
-ENV SUPER_USER: YWRtaW4K 
+ENV SUPER_USER: YWRtaW4K   # неверно. Должно быть так: SUPER_USER=YWRtaW4K
 
-ENV PASS_W: cGFzc3dvcmQK
+ENV PASS_W: cGFzc3dvcmQK   # неверно. Должно быть так: PASS_W=cGFzc3dvcmQK
 
 CMD sleep 3600
 ubuntu $ 
@@ -159,15 +192,15 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 PWD=/
 PASS_W:=cGFzc3dvcmQK
 / # 
-/ # echo $SUPER_USER
+/ # echo $SUPER_USER    # переменная не считывается
 
 / # 
-/ # echo $SUPER_USER:
+/ # echo $SUPER_USER:    # переменная не считывается
 :
 / # 
-/ # echo $SUPER_USER
+/ # echo $SUPER_USER    # переменная не считывается
 
-/ # echo $PASS_W
+/ # echo $PASS_W    # переменная не считывается
 
 / # 
 / # exit
