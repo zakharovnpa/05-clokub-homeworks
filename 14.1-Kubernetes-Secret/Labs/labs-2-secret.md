@@ -202,6 +202,96 @@ domain-cert   kubernetes.io/tls   2      4s
   * как в виде переменных окружения,  - вывод команды env. В этом случае указать в файле secret.yml эти переменные окружения с логином и паролем
   * так и в виде примонтированного тома. - показать файл секрета. Монтировать только как eptydir. Это позволит хранить секреты в оперативной памяти, а не на диске
 
+#### 1. Сборка образа и его загрузка в реджистри описан здесь:
+- [ЛР-3. "Подготовка образа для задачи 2*."](/14.1-Kubernetes-Secret/Labs/labs-3-docker-image.md)
+
+####  Имя образа `zakharovnpa/k8s-busybox:02.08.22`
+
+#### 2. Подготовка манифеста для разворачивания приложения в кластере
+
+* pod.yaml
+```yml
+cat pod.yml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-learn-secret
+spec:
+  containers:
+  - name: busybox
+    image: zakharovnpa/k8s-busybox:02.08.22
+    volumeMounts:
+    - mountPath: "/tmp/cache"
+      name: my-volume
+  volumes:
+    - name: my-volume
+      emptyDir: {}
+```
+#### Логи
+
+```
+controlplane $ kubectl get po
+NAME               READY   STATUS    RESTARTS   AGE
+pod-learn-secret   1/1     Running   0          16s
+```
+```
+controlplane $ kubectl exec pod-learn-secret -it sh -- env
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+HOSTNAME=pod-learn-secret
+SUPER_USER=YWRtaW4K
+PASS_W=cGFzc3dvcmQK
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_PORT=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_PORT_443_TCP_PORT=443
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+KUBERNETES_SERVICE_HOST=10.96.0.1
+KUBERNETES_SERVICE_PORT=443
+TERM=xterm
+HOME=/root
+```
+* Пустые ответы содержания переменных
+```
+controlplane $ kubectl exec pod-learn-secret -it sh -- echo $SUPER_USER
+
+controlplane $ 
+controlplane $ kubectl exec pod-learn-secret -it sh -- echo $PASS_W    
+
+```
+* Показаны переменные и их содержимое
+```
+controlplane $ kubectl exec pod-learn-secret -it sh                
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+/ # 
+/ # env
+KUBERNETES_PORT=tcp://10.96.0.1:443
+KUBERNETES_SERVICE_PORT=443
+HOSTNAME=pod-learn-secret
+SHLVL=1
+HOME=/root
+PASS_W=cGFzc3dvcmQK
+TERM=xterm
+KUBERNETES_PORT_443_TCP_ADDR=10.96.0.1
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+KUBERNETES_PORT_443_TCP_PORT=443
+KUBERNETES_PORT_443_TCP_PROTO=tcp
+KUBERNETES_SERVICE_PORT_HTTPS=443
+KUBERNETES_PORT_443_TCP=tcp://10.96.0.1:443
+KUBERNETES_SERVICE_HOST=10.96.0.1
+PWD=/
+SUPER_USER=YWRtaW4K
+/ # 
+/ # 
+/ # echo $SUPER_USER
+YWRtaW4K
+/ # 
+/ # echo $PASS_W
+cGFzc3dvcmQK
+/ # 
+/ # 
+```
+
 #### secret.yaml
 ```yml
 apiVersion: v1
@@ -223,7 +313,7 @@ echo 'export SUPER_USER="YWRtaW4K"' >> ~/.bashrc
 echo 'export PASS_W="cGFzc3dvcmQK"' >> ~/.bashrc
 ```
 
-#### Пример монтирования секрета
+#### Пример из лекции монтирования секрета
 ```
 apiVersion: v1
 kind: Pod
@@ -253,6 +343,7 @@ spec:
     configMap:
       name: nginx-config
 ```
+
 
 
 ---
