@@ -2,6 +2,28 @@
 
 ## Задача 1: Работа с модулем Vault
 
+* vault-pod.yaml
+```yml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: 14.2-netology-vault
+spec:
+  containers:
+  - name: vault
+    image: vault
+    ports:
+    - containerPort: 8200
+      protocol: TCP
+    env:
+    - name: VAULT_DEV_ROOT_TOKEN_ID
+      value: "aiphohTaa0eeHei"
+    - name: VAULT_DEV_LISTEN_ADDRESS
+      value: 0.0.0.0:8200
+```
+
+
 Запустить модуль Vault конфигураций через утилиту kubectl в установленном minikube
 
 ```
