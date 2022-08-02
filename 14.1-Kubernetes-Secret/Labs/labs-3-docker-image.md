@@ -3,8 +3,18 @@
 > Цель: создать образ, в котором будут прописаны переменные окружения для работы с секртеами Kubernetes
 > 
 
+#### Подготовка параметрв авторизации
 
+```
+controlplane $ echo 'admin' | base64
+YWRtaW4K
+controlplane $ 
+controlplane $ echo 'password' | base64
+cGFzc3dvcmQK
+```
 #### Dockerfile
+
+* Вносим в образ переменные окружения с содержимым параметров аторизации
 ```
 FROM busybox
 
