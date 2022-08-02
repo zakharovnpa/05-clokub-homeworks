@@ -337,14 +337,18 @@ True
 >>> client.secrets.kv.v2.read_secret_version(
 ...     path='hvac',
 ... )
-```
-* Получаем вывод результат команды
-```
 {'request_id': '480d12ce-753d-ce58-2750-015f5dccee2a', 'lease_id': '', 'renewable': False, 'lease_duration': 0, 'data': {'data': {'netology': 'Big secret!!!'}, 'metadata': {'created_time': '2022-08-02T19:02:08.919290446Z', 'custom_metadata': None, 'deletion_time': '', 'destroyed': False, 'version': 1}}, 'wrap_info': None, 'warnings': None, 'auth': None}
 >>> 
 ```
 * Открыть адрес в браузере http://192.168.1.4:8200
+```
+sh-5.1# ping 192.168.1.4
+sh: ping: command not found
+sh-5.1# 
+sh-5.1# curl http://192.168.1.4:8200
+<a href="/ui/">Temporary Redirect</a>.
 
+```
 
 
 
