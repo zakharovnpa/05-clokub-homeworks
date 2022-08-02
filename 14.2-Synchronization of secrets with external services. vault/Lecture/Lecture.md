@@ -5,6 +5,8 @@
 Сергей
 Андрюнин
 
+https://gitlab.com/k11s-os/k8s-lessons
+
 ### 1Сергей Андрюнин
 DevOps-инженер
 RTLabs
