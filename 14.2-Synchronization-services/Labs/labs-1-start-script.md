@@ -281,9 +281,19 @@ sh-5.1#
 поменяв IP и токен
 
 ```
+sh-5.1# python3 
+Python 3.10.4 (main, Mar 25 2022, 00:00:00) [GCC 12.0.1 20220308 (Red Hat 12.0.1-0)] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> 
+
+```
+
+*  Берем адрес из вывода предыдущей команды [{"ip":"192.168.1.4"}] и вставляем
+
+```
 import hvac
 client = hvac.Client(
-    url='http://10.10.133.71:8200',
+    url='http://192.168.1.4:8200',
     token='aiphohTaa0eeHei'
 )
 client.is_authenticated()
@@ -299,6 +309,46 @@ client.secrets.kv.v2.read_secret_version(
     path='hvac',
 )
 ```
+
+* Tab 1-3
+
+```
+sh-5.1# 
+sh-5.1# python3 
+Python 3.10.4 (main, Mar 25 2022, 00:00:00) [GCC 12.0.1 20220308 (Red Hat 12.0.1-0)] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> 
+>>> import hvac
+>>> client = hvac.Client(
+...     url='http://192.168.1.4:8200',
+...     token='aiphohTaa0eeHei'
+... )
+>>> client.is_authenticated()
+True
+>>> 
+>>> # Пишем секрет
+>>> client.secrets.kv.v2.create_or_update_secret(
+...     path='hvac',
+...     secret=dict(netology='Big secret!!!'),
+... )
+{'request_id': '4af8d21d-9f5e-3ddb-7afd-e7794d5cec56', 'lease_id': '', 'renewable': False, 'lease_duration': 0, 'data': {'created_time': '2022-08-02T19:02:08.919290446Z', 'custom_metadata': None, 'deletion_time': '', 'destroyed': False, 'version': 1}, 'wrap_info': None, 'warnings': None, 'auth': None}
+>>> 
+>>> # Читаем секрет
+>>> client.secrets.kv.v2.read_secret_version(
+...     path='hvac',
+... )
+```
+* Получаем вывод результат команды
+```
+{'request_id': '480d12ce-753d-ce58-2750-015f5dccee2a', 'lease_id': '', 'renewable': False, 'lease_duration': 0, 'data': {'data': {'netology': 'Big secret!!!'}, 'metadata': {'created_time': '2022-08-02T19:02:08.919290446Z', 'custom_metadata': None, 'deletion_time': '', 'destroyed': False, 'version': 1}}, 'wrap_info': None, 'warnings': None, 'auth': None}
+>>> 
+```
+* Открыть адрес в браузере http://192.168.1.4:8200
+
+
+
+
+
 
 ## Задача 2 (*): Работа с секретами внутри модуля
 
