@@ -184,7 +184,88 @@ domain-cert   kubernetes.io/tls   2      4s
 Выберите любимый образ контейнера, подключите секреты и проверьте их доступность
 как в виде переменных окружения, так и в виде примонтированного тома.
 
+### Ход решения
 
+#### 1. С помощью [скрипта](/14.1-Kubernetes-Secret/Files/script-start-environment.sh) развернули в кластере окружение
+```
+controlplane $ kubectl get pod
+NAME                                  READY   STATUS    RESTARTS   AGE
+busybox-pod-69b6cdf8b4-2986x          2/2     Running   0          33m
+secret-busybox-pod-6fc569f94b-r5z7f   2/2     Running   0          25m
+```
+```
+controlplane $ kubectl get svc
+NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+busybox-pod   NodePort    10.104.73.243   <none>        80:30092/TCP   34m
+kubernetes    ClusterIP   10.96.0.1       <none>        443/TCP        86d
+```
+```
+controlplane $ kubectl get secrets 
+NAME        TYPE     DATA   AGE
+user-cred   Opaque   2      36m
+```
+```
+controlplane $ kubectl get deployments.apps 
+NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+busybox-pod          1/1     1            1           34m
+secret-busybox-pod   1/1     1            1           25m
+```
+#### 2. Проверяем доступность секрета через env
+```
+controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-r5z7f -it sh -c one-busybox               
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+/ # 
+/ # echo $SUPER_USER
+YWRtaW4K
+/ # 
+/ # echo $PASS_W
+cGFzc3dvcmQK
+/ # 
+/ # exit
+controlplane $ 
+controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-r5z7f -it sh -c two-busybox
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+/ # 
+/ # echo $SUPER_USER
+YWRtaW4K
+/ # 
+/ # echo $PASS_W
+cGFzc3dvcmQK
+/ # 
+/ # exit
+controlplane $ 
+```
+* Скриншот доступности секрета через env
+
+![screen-secret-pod-in-env](/14.1-Kubernetes-Secret/Files/screen-secret-pod-in-env.png)
+
+#### 2. Проверяем доступность секрета через volume
+```
+controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-r5z7f -it sh -c one-busybox -- ls -l static       
+total 0
+lrwxrwxrwx    1 root     root            19 Aug  3 13:33 password.txt -> ..data/password.txt
+lrwxrwxrwx    1 root     root            19 Aug  3 13:33 username.txt -> ..data/username.txt
+controlplane $ 
+controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-r5z7f -it sh -c one-busybox -- cat static/username.txt
+‘admin’
+controlplane $ 
+controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-r5z7f -it sh -c one-busybox -- cat static/password.txt
+‘password’
+controlplane $ 
+controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-r5z7f -it sh -c two-busybox -- ls -l tmp/cache
+total 0
+lrwxrwxrwx    1 root     root            19 Aug  3 13:33 password.txt -> ..data/password.txt
+lrwxrwxrwx    1 root     root            19 Aug  3 13:33 username.txt -> ..data/username.txt
+controlplane $ 
+controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-r5z7f -it sh -c two-busybox -- cat tmp/cache/username.txt
+‘admin’
+controlplane $ 
+controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-r5z7f -it sh -c two-busybox -- cat tmp/cache/password.txt
+‘password’
+```
+* Скриншот доступности секрета через volume
+
+![screen-secret-pod-in-volume](/14.1-Kubernetes-Secret/Files/screen-secret-pod-in-volume.png)
 
 
 ---
