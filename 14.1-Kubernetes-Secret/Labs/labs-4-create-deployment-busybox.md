@@ -7,8 +7,8 @@
 
 ```
 date && \
-mkdir -p My-Project && cd My-Project/ && \
-touch username.txt password.txt secret-busybox-pod.yaml busybox-pod.yaml&& \
+mkdir -p My-Project && cd My-Project && \
+touch username.txt password.txt secret-busybox-pod.yaml busybox-pod.yaml && \
 echo ‘admin’ > username.txt && \
 echo ‘password’ > password.txt && \
 echo "
