@@ -186,24 +186,143 @@ domain-cert   kubernetes.io/tls   2      4s
 
 ### Ход решения
 
-#### 1. С помощью [скрипта](/14.1-Kubernetes-Secret/Files/script-start-environment.sh) развернули в кластере окружение
+
+#### Манифест деплоймента с примонтированным volume и secret
+* secret-busybox-pod.yaml
+```yml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sbb-app
+  name: secret-busybox-pod 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sbb-app
+  template:
+    metadata:
+      labels:
+        app: sbb-app
+    spec:
+      containers:
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: one-busybox
+          ports:
+          - containerPort: 80
+          volumeMounts:
+            - mountPath: /static
+              name: my-secret-volume
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: two-busybox
+          volumeMounts:
+            - mountPath: /tmp/cache
+              name: my-secret-volume
+      volumes:
+        - name: my-secret-volume
+          secret:
+            secretName: user-cred
+            
+---
+# Config Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: busybox-pod
+  labels:
+    app: sbb
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30092
+  selector:
+    app: sbb-pod
+```
+#### Манифест деплоймента без примонтированого secret
+* busybox-pod.yaml
+```yml
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: bb-app
+  name: busybox-pod 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bb-app
+  template:
+    metadata:
+      labels:
+        app: bb-app
+    spec:
+      containers:
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: one-busybox
+          ports:
+          - containerPort: 80
+          volumeMounts:
+            - mountPath: /static
+              name: my-volume
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: two-busybox
+          volumeMounts:
+            - mountPath: /tmp/cache
+              name: my-volume
+      volumes:
+        - name: my-volume
+          emptyDir: {}
+          
+---
+# Config Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: busybox-pod
+  labels:
+    app: bb
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30091
+  selector:
+    app: bb-pod
+```
+
+
+#### 1. С помощью [скрипта](/14.1-Kubernetes-Secret/Files/script-start-environment.sh) развернули в кластере окружение.
+* Запущенные поды
 ```
 controlplane $ kubectl get pod
 NAME                                  READY   STATUS    RESTARTS   AGE
 busybox-pod-69b6cdf8b4-2986x          2/2     Running   0          33m
 secret-busybox-pod-6fc569f94b-r5z7f   2/2     Running   0          25m
 ```
+* Запущенные сервисы
 ```
 controlplane $ kubectl get svc
 NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
 busybox-pod   NodePort    10.104.73.243   <none>        80:30092/TCP   34m
 kubernetes    ClusterIP   10.96.0.1       <none>        443/TCP        86d
 ```
+* Запущенные секреты
 ```
 controlplane $ kubectl get secrets 
 NAME        TYPE     DATA   AGE
 user-cred   Opaque   2      36m
 ```
+* Запущенные деплойменты
 ```
 controlplane $ kubectl get deployments.apps 
 NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
