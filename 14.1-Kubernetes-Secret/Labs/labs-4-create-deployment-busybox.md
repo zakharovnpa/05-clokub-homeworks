@@ -250,22 +250,26 @@ controlplane $ date && \
 > kubectl create secret generic user-cred --from-file=./username.txt --from-file=./password.txt
 Wed Aug  3 12:31:07 UTC 2022
 secret/user-cred created
-controlplane $ 
-controlplane $ 
+```
+
+```
 controlplane $ pwd
 /root/My-Project
 controlplane $ 
 controlplane $ ls
 busybox-pod.yaml  password.txt  secret-busybox-pod.yaml  username.txt
-controlplane $ 
+```
+```
 controlplane $ kubectl get pod 
 No resources found in default namespace.
-controlplane $ 
+```
+```
 controlplane $ kubectl get secrets 
 NAME        TYPE     DATA   AGE
 user-cred   Opaque   2      47s
-controlplane $ 
-controlplane $ cat busybox-pod.yaml 
+```
+```yml
+# controlplane $ cat busybox-pod.yaml 
 
 # Config Deployment Frontend & Backend with Volume
 ---
@@ -320,18 +324,18 @@ spec:
   selector:
     app: sbb-pod
 
-controlplane $ 
-controlplane $ vi secret-busybox-pod.yaml 
-controlplane $ 
+```
+```
 controlplane $ kubectl apply -f busybox-pod.yaml 
 deployment.apps/busybox-pod created
 service/busybox-pod created
-controlplane $ 
-controlplane $ 
+```
+```
 controlplane $ kubectl get po
 NAME                           READY   STATUS    RESTARTS   AGE
 busybox-pod-69b6cdf8b4-2986x   2/2     Running   0          2m4s
-controlplane $ 
+```
+```
 controlplane $ kubectl apply -f secret-busybox-pod.yaml 
 service/busybox-pod configured
 The Deployment "secret-busybox-pod" is invalid: 
@@ -369,24 +373,26 @@ The Deployment "secret-busybox-pod" is invalid:
 * spec.template.spec.volumes[0].secret: Forbidden: may not specify more than 1 volume type
 * spec.template.spec.containers[0].volumeMounts[0].name: Not found: "my-secret-volume"
 * spec.template.spec.containers[1].volumeMounts[0].name: Not found: "my-secret-volume"
-controlplane $ 
+```
+* После редактирования `secret-busybox-pod.yaml`. Убрал `emptyDir: {}`
+```
 controlplane $ vi secret-busybox-pod.yaml 
 controlplane $ 
 controlplane $ kubectl apply -f secret-busybox-pod.yaml 
 deployment.apps/secret-busybox-pod created
 service/busybox-pod unchanged
-controlplane $ 
+```
+```
 controlplane $ kubectl get pod
 NAME                                  READY   STATUS    RESTARTS   AGE
 busybox-pod-69b6cdf8b4-2986x          2/2     Running   0          8m32s
 secret-busybox-pod-6fc569f94b-spkbj   2/2     Running   0          12s
-controlplane $ 
-controlplane $ 
-controlplane $ 
-controlplane $ 
+```
+```
 controlplane $ date
 Wed Aug  3 12:41:52 UTC 2022
-controlplane $ 
+```
+```yml
 controlplane $ cat secret-busybox-pod.yaml 
 
 # Config Deployment Frontend & Backend with Volume
@@ -443,12 +449,14 @@ spec:
   selector:
     app: sbb-pod
 
-controlplane $ 
-controlplane $ 
+```
+```
 controlplane $ kubectl get secrets 
 NAME        TYPE     DATA   AGE
 user-cred   Opaque   2      11m
-controlplane $ 
+```
+* Смотрим на содержимое директорий, подключенных к volume
+```
 controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-spkbj -it sh -c one-busybox 
 kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
 / # 
