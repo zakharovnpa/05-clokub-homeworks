@@ -130,10 +130,17 @@ kubectl get pod
 ```
 kubectl get secrets 
 ```
+### Логи - 2. Успешное подключение секрета в виде volume
+* Tab 1
+```
+
+```
 
 
 
-### Логи - 1
+
+
+### Логи - 1. Неуспешная попытка подключения секрета в виде volume
 * Tab 1
 ```
 Initialising Kubernetes... done
