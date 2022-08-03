@@ -1,5 +1,7 @@
 ## ЛР-4. "Подготовка манифестов для задачи 2*, часть 2. Подключение секрета к volume"
 > Задача: создать секрет и разместить его в volume
+> Нужно чтобы в директории с общим доступом лежал файл с секретом или сертификат. И чтобы это файл был доступени и читаем
+> 
 
 ### Логи - 1
 * Tab 1
@@ -468,6 +470,124 @@ controlplane $ kubectl get secrets
 NAME          TYPE     DATA   AGE
 domain-cert   Opaque   2      36m
 user-cred     Opaque   2      37m
+controlplane $ 
+controlplane $ 
+```
+```
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl get po
+NAME                      READY   STATUS    RESTARTS   AGE
+fb-pod-6464948946-vczgl   2/2     Running   0          27m
+controlplane $ 
+controlplane $ kubectl get secrets 
+NAME          TYPE     DATA   AGE
+domain-cert   Opaque   2      36m
+user-cred     Opaque   2      37m
+controlplane $ 
+controlplane $ ls -l
+total 24
+-rw-r--r-- 1 root root 1029 Aug  3 02:50 busybox-pod.yaml
+-rw-r--r-- 1 root root 1013 Aug  3 02:44 fb-pod.yaml
+-rw-r--r-- 1 root root   15 Aug  3 02:34 password.txt
+-rw-r--r-- 1 root root  348 Aug  3 02:41 pod.yml
+-rw-r--r-- 1 root root 1094 Aug  3 03:07 secret-busybox-pod.yaml
+-rw-r--r-- 1 root root   12 Aug  3 02:34 username.txt
+controlplane $ 
+controlplane $ 
+controlplane $ 
+controlplane 
+controlplane $ 
+controlplane $ kubectl apply -f busybox-pod.yaml 
+deployment.apps/busybox-pod created
+service/busybox-pod configured
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl get po
+NAME                           READY   STATUS    RESTARTS   AGE
+busybox-pod-69b6cdf8b4-xjpxc   2/2     Running   0          15s
+fb-pod-6464948946-vczgl        2/2     Running   0          35m
+controlplane $ 
+controlplane $ kubectl get volumeattachments.storage.k8s.io 
+No resources found
+controlplane $ 
+controlplane $ kubectl describe po busybox-pod-69b6cdf8b4-xjpxc  
+Name:         busybox-pod-69b6cdf8b4-xjpxc
+Namespace:    default
+Priority:     0
+Node:         controlplane/172.30.1.2
+Start Time:   Wed, 03 Aug 2022 03:21:06 +0000
+Labels:       app=bb-app
+              pod-template-hash=69b6cdf8b4
+Annotations:  cni.projectcalico.org/containerID: f90eba5332ae601ac6a0bbf65a71c8aecf40728dd700cc1f31d2bbbf52a02b2b
+              cni.projectcalico.org/podIP: 192.168.0.7/32
+              cni.projectcalico.org/podIPs: 192.168.0.7/32
+Status:       Running
+IP:           192.168.0.7
+IPs:
+  IP:           192.168.0.7
+Controlled By:  ReplicaSet/busybox-pod-69b6cdf8b4
+Containers:
+  one-busybox:
+    Container ID:   containerd://dd772a6bc542f89da77222b023216578e2934feb186820c484a2702ebb5f9fc8
+    Image:          zakharovnpa/k8s-busybox:02.08.22
+    Image ID:       docker.io/zakharovnpa/k8s-busybox@sha256:ca18e2401ab009f346871abbb543c3f50dbe372f100fdc2f835d92379365c25d
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 03 Aug 2022 03:21:07 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /static from my-volume (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kpdtz (ro)
+  two-busybox:
+    Container ID:   containerd://ed2b0d30f3417b787b12e406cad429444da4d49b8689cbfd2ff601212164dfc0
+    Image:          zakharovnpa/k8s-busybox:02.08.22
+    Image ID:       docker.io/zakharovnpa/k8s-busybox@sha256:ca18e2401ab009f346871abbb543c3f50dbe372f100fdc2f835d92379365c25d
+    Port:           <none>
+    Host Port:      <none>
+    State:          Running
+      Started:      Wed, 03 Aug 2022 03:21:07 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /tmp/cache from my-volume (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kpdtz (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  my-volume:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:     
+    SizeLimit:  <unset>
+  kube-api-access-kpdtz:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  49s   default-scheduler  Successfully assigned default/busybox-pod-69b6cdf8b4-xjpxc to controlplane
+  Normal  Pulled     48s   kubelet            Container image "zakharovnpa/k8s-busybox:02.08.22" already present on machine
+  Normal  Created    48s   kubelet            Created container one-busybox
+  Normal  Started    48s   kubelet            Started container one-busybox
+  Normal  Pulled     48s   kubelet            Container image "zakharovnpa/k8s-busybox:02.08.22" already present on machine
+  Normal  Created    48s   kubelet            Created container two-busybox
+  Normal  Started    48s   kubelet            Started container two-busybox
+controlplane $ 
 controlplane $ 
 controlplane $ 
 ```
