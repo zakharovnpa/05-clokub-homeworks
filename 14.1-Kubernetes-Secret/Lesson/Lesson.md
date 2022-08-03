@@ -63,10 +63,13 @@ kubectl apply -f domain-cert.yml
 как в виде переменных окружения, так и в виде примонтированного тома.
 
 #### Ход выполнения описан здесь
+- [ЛР-4. "Подготовка манифестов для задачи 2*, часть 2. Подключение секрета к volume"](/14.1-Kubernetes-Secret/Labs/labs-4-create-deployment-busybox.md)
 
 #### Ход сборки образа описан здесь:
 - [ЛР-3. "Подготовка образа для задачи 2*."](/14.1-Kubernetes-Secret/Labs/labs-3-docker-image.md)
-- 
+
+-[Скрипт разворачивания приложений в кластере](/14.1-Kubernetes-Secret/Files/script-start-environment.sh)
+
 ---
 
 ### Как оформить ДЗ?
