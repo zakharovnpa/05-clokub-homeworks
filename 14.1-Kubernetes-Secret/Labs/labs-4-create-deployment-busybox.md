@@ -12,7 +12,6 @@ touch username.txt password.txt secret-busybox-pod.yaml busybox-pod.yaml&& \
 echo ‘admin’ > username.txt && \
 echo ‘password’ > password.txt && \
 echo "
-# Config Deployment Frontend & Backend with Volume
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -37,36 +36,35 @@ spec:
           ports:
           - containerPort: 80
           volumeMounts:
-            - mountPath: "/static"
-              name: my-volume
+            - mountPath: /static
+              name: my-secret-volume
         - image: zakharovnpa/k8s-busybox:02.08.22
           imagePullPolicy: IfNotPresent
           name: two-busybox
           volumeMounts:
-            - mountPath: "/tmp/cache"
-              name: my-volume
+            - mountPath: /tmp/cache
+              name: my-secret-volume
       volumes:
-        - name: my-volume
+        - name: my-secret-volume
           secret:
-            secretName: domain-cert
----
+            secretName: user-cred
+ ---
 # Config Service
 apiVersion: v1
 kind: Service
 metadata:
   name: busybox-pod
   labels:
-    app: bb
+    app: sbb
 spec:
   type: NodePort
   ports:
   - port: 80
-    nodePort: 30091
+    nodePort: 30092
   selector:
-    app: bb-pod
+    app: sbb-pod
 " > secret-busybox-pod.yaml && \
 echo "
-# Config Deployment Frontend & Backend with Volume
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -91,36 +89,38 @@ spec:
           ports:
           - containerPort: 80
           volumeMounts:
-            - mountPath: "/static"
+            - mountPath: /static
               name: my-volume
         - image: zakharovnpa/k8s-busybox:02.08.22
           imagePullPolicy: IfNotPresent
           name: two-busybox
           volumeMounts:
-            - mountPath: "/tmp/cache"
+            - mountPath: /tmp/cache
               name: my-volume
       volumes:
         - name: my-volume
           emptyDir: {}
- 
----
+ ---
 # Config Service
 apiVersion: v1
 kind: Service
 metadata:
   name: busybox-pod
   labels:
-    app: sbb
+    app: bb
 spec:
   type: NodePort
   ports:
   - port: 80
     nodePort: 30091
   selector:
-    app: sbb-pod
+    app: bb-pod
 " > busybox-pod.yaml && \
 clear && \
-kubectl create secret generic user-cred --from-file=./username.txt --from-file=./password.txt
+kubectl create secret generic user-cred --from-file=./username.txt --from-file=./password.txt && \
+sleep 20 && \
+kubectl apply -f busybox-pod.yaml && \
+kubectl apply -f secret-busybox-pod.yaml
 
 ```
 ```
@@ -479,7 +479,27 @@ cat password.txt
 
 ![screen-secret-file-in-pods](/14.1-Kubernetes-Secret/Files/screen-secret-file-in-pods.png)
 
-
+```
+controlplane $ kubectl get pod
+NAME                                  READY   STATUS    RESTARTS   AGE
+busybox-pod-69b6cdf8b4-2986x          2/2     Running   0          33m
+secret-busybox-pod-6fc569f94b-spkbj   2/2     Running   0          25m
+controlplane $ 
+controlplane $ kubectl get svc
+NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+busybox-pod   NodePort    10.104.73.243   <none>        80:30092/TCP   34m
+kubernetes    ClusterIP   10.96.0.1       <none>        443/TCP        86d
+controlplane $ 
+controlplane $ kubectl get secrets 
+NAME        TYPE     DATA   AGE
+user-cred   Opaque   2      36m
+controlplane $ 
+controlplane $ kubectl get deployments.apps 
+NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+busybox-pod          1/1     1            1           34m
+secret-busybox-pod   1/1     1            1           25m
+controlplane $ 
+```
 
 
 ### Логи - 1. Неуспешная попытка подключения секрета в виде volume
