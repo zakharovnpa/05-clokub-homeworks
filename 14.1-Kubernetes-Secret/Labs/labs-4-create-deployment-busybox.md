@@ -472,7 +472,12 @@ password.txt  username.txt
 ‘admin’
 /static # 
 ```
+```
+cat password.txt
+```
 ![screen-secret-file-in-volume](/14.1-Kubernetes-Secret/Files/screen-secret-file-in-volume.png)
+
+![screen-secret-file-in-pods](/14.1-Kubernetes-Secret/Files/screen-secret-file-in-pods.png)
 
 
 
