@@ -30,7 +30,7 @@ controlplane $
 ```
 ![screen-cert-key](/14.1-Kubernetes-Secret/Files/screen-cert-key.png)
 
-2. На основе ключа гегерируем сертификат
+2. На основе ключа генерируем сертификат
 ```
 controlplane $ openssl req -x509 -new -key cert.key -days 3650 -out cert.crt \
 > -subj '/C=RU/ST=Moscow/L=Moscow/CN=server.local'
