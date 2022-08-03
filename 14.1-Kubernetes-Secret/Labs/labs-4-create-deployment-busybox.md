@@ -48,7 +48,8 @@ spec:
         - name: my-secret-volume
           secret:
             secretName: user-cred
- ---
+            
+---
 # Config Service
 apiVersion: v1
 kind: Service
@@ -100,7 +101,8 @@ spec:
       volumes:
         - name: my-volume
           emptyDir: {}
- ---
+          
+---
 # Config Service
 apiVersion: v1
 kind: Service
@@ -116,19 +118,15 @@ spec:
   selector:
     app: bb-pod
 " > busybox-pod.yaml && \
-clear && \
 kubectl create secret generic user-cred --from-file=./username.txt --from-file=./password.txt && \
-sleep 20 && \
+clear && \
+sleep 10 && \
 kubectl apply -f busybox-pod.yaml && \
-kubectl apply -f secret-busybox-pod.yaml
+kubectl apply -f secret-busybox-pod.yaml && \
+sleep 10 && \
+kubectl get pod,secrets
+```
 
-```
-```
-kubectl get pod 
-```
-```
-kubectl get secrets 
-```
 ### Логи - 2. Успешное подключение секрета в виде volume
 * Tab 1
 ```
