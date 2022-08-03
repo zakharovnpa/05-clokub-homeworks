@@ -1,7 +1,137 @@
 ## ЛР-4. "Подготовка манифестов для задачи 2*, часть 2. Подключение секрета к volume"
-> Задача: создать секрет и разместить его в volume
-> Нужно чтобы в директории с общим доступом лежал файл с секретом или сертификат. И чтобы это файл был доступени и читаем
+> Задача: создать секрет и разместить его в volume. 
+> Нужно чтобы в директории с общим доступом лежал файл с секретом или сертификат. И чтобы это файл был доступени и читаем.
 > 
+
+#### Скрипт для подготовки окружения
+
+```
+date && \
+mkdir -p My-Project && cd My-Project/ && \
+touch username.txt password.txt secret-busybox-pod.yaml busybox-pod.yaml&& \
+echo ‘admin’ > username.txt && \
+echo ‘password’ > password.txt && \
+echo "
+# Config Deployment Frontend & Backend with Volume
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sbb-app
+  name: secret-busybox-pod 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sbb-app
+  template:
+    metadata:
+      labels:
+        app: sbb-app
+    spec:
+      containers:
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: one-busybox
+          ports:
+          - containerPort: 80
+          volumeMounts:
+            - mountPath: "/static"
+              name: my-volume
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: two-busybox
+          volumeMounts:
+            - mountPath: "/tmp/cache"
+              name: my-volume
+      volumes:
+        - name: my-volume
+          secret:
+            secretName: domain-cert
+          emptyDir: {}
+ 
+---
+# Config Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: busybox-pod
+  labels:
+    app: bb
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30091
+  selector:
+    app: bb-pod
+" > secret-busybox-pod.yaml && \
+echo "
+# Config Deployment Frontend & Backend with Volume
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: bb-app
+  name: busybox-pod 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bb-app
+  template:
+    metadata:
+      labels:
+        app: bb-app
+    spec:
+      containers:
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: one-busybox
+          ports:
+          - containerPort: 80
+          volumeMounts:
+            - mountPath: "/static"
+              name: my-volume
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: two-busybox
+          volumeMounts:
+            - mountPath: "/tmp/cache"
+              name: my-volume
+      volumes:
+        - name: my-volume
+          emptyDir: {}
+ 
+---
+# Config Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: busybox-pod
+  labels:
+    app: sbb
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30091
+  selector:
+    app: sbb-pod
+" > busybox-pod.yaml && \
+kubectl create secret generic user-cred --from-file=./username.txt --from-file=./password.txt
+
+```
+```
+kubectl get pod 
+```
+```
+kubectl get secrets 
+```
+
+
 
 ### Логи - 1
 * Tab 1
