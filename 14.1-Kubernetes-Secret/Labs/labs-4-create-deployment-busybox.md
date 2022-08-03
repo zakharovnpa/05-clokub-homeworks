@@ -49,8 +49,6 @@ spec:
         - name: my-volume
           secret:
             secretName: domain-cert
-          emptyDir: {}
- 
 ---
 # Config Service
 apiVersion: v1
@@ -121,6 +119,7 @@ spec:
   selector:
     app: sbb-pod
 " > busybox-pod.yaml && \
+clear && \
 kubectl create secret generic user-cred --from-file=./username.txt --from-file=./password.txt
 
 ```
@@ -133,9 +132,347 @@ kubectl get secrets
 ### Логи - 2. Успешное подключение секрета в виде volume
 * Tab 1
 ```
+Initialising Kubernetes... done
 
+controlplane $ date && \
+> mkdir -p My-Project && cd My-Project/ && \
+> touch username.txt password.txt secret-busybox-pod.yaml busybox-pod.yaml&& \
+> echo ‘admin’ > username.txt && \
+> echo ‘password’ > password.txt && \
+> echo "
+> # Config Deployment Frontend & Backend with Volume
+> ---
+> apiVersion: apps/v1
+> kind: Deployment
+> metadata:
+>   labels:
+>     app: sbb-app
+>   name: secret-busybox-pod 
+> spec:
+>   replicas: 1
+>   selector:
+>     matchLabels:
+>       app: sbb-app
+>   template:
+>     metadata:
+>       labels:
+>         app: sbb-app
+>     spec:
+>       containers:
+>         - image: zakharovnpa/k8s-busybox:02.08.22
+>           imagePullPolicy: IfNotPresent
+>           name: one-busybox
+>           ports:
+>           - containerPort: 80
+>           volumeMounts:
+>             - mountPath: "/static"
+>               name: my-volume
+>         - image: zakharovnpa/k8s-busybox:02.08.22
+>           imagePullPolicy: IfNotPresent
+>           name: two-busybox
+>           volumeMounts:
+>             - mountPath: "/tmp/cache"
+>               name: my-volume
+>       volumes:
+>         - name: my-volume
+>           secret:
+>             secretName: domain-cert
+>           emptyDir: {}
+>  
+> ---
+> # Config Service
+> apiVersion: v1
+> kind: Service
+> metadata:
+>   name: busybox-pod
+>   labels:
+>     app: bb
+> spec:
+>   type: NodePort
+>   ports:
+>   - port: 80
+>     nodePort: 30091
+>   selector:
+>     app: bb-pod
+> " > secret-busybox-pod.yaml && \
+> echo "
+> # Config Deployment Frontend & Backend with Volume
+> ---
+> apiVersion: apps/v1
+> kind: Deployment
+> metadata:
+>   labels:
+>     app: bb-app
+>   name: busybox-pod 
+> spec:
+>   replicas: 1
+>   selector:
+>     matchLabels:
+>       app: bb-app
+>   template:
+>     metadata:
+>       labels:
+>         app: bb-app
+>     spec:
+>       containers:
+>         - image: zakharovnpa/k8s-busybox:02.08.22
+>           imagePullPolicy: IfNotPresent
+>           name: one-busybox
+>           ports:
+>           - containerPort: 80
+>           volumeMounts:
+>             - mountPath: "/static"
+>               name: my-volume
+>         - image: zakharovnpa/k8s-busybox:02.08.22
+>           imagePullPolicy: IfNotPresent
+>           name: two-busybox
+>           volumeMounts:
+>             - mountPath: "/tmp/cache"
+>               name: my-volume
+>       volumes:
+>         - name: my-volume
+>           emptyDir: {}
+>  
+> ---
+> # Config Service
+> apiVersion: v1
+> kind: Service
+> metadata:
+>   name: busybox-pod
+>   labels:
+>     app: sbb
+> spec:
+>   type: NodePort
+>   ports:
+>   - port: 80
+>     nodePort: 30091
+>   selector:
+>     app: sbb-pod
+> " > busybox-pod.yaml && \
+> kubectl create secret generic user-cred --from-file=./username.txt --from-file=./password.txt
+Wed Aug  3 12:31:07 UTC 2022
+secret/user-cred created
+controlplane $ 
+controlplane $ 
+controlplane $ pwd
+/root/My-Project
+controlplane $ 
+controlplane $ ls
+busybox-pod.yaml  password.txt  secret-busybox-pod.yaml  username.txt
+controlplane $ 
+controlplane $ kubectl get pod 
+No resources found in default namespace.
+controlplane $ 
+controlplane $ kubectl get secrets 
+NAME        TYPE     DATA   AGE
+user-cred   Opaque   2      47s
+controlplane $ 
+controlplane $ cat busybox-pod.yaml 
+
+# Config Deployment Frontend & Backend with Volume
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: bb-app
+  name: busybox-pod 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bb-app
+  template:
+    metadata:
+      labels:
+        app: bb-app
+    spec:
+      containers:
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: one-busybox
+          ports:
+          - containerPort: 80
+          volumeMounts:
+            - mountPath: /static
+              name: my-volume
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: two-busybox
+          volumeMounts:
+            - mountPath: /tmp/cache
+              name: my-volume
+      volumes:
+        - name: my-volume
+          emptyDir: {}
+ 
+---
+# Config Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: busybox-pod
+  labels:
+    app: sbb
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30091
+  selector:
+    app: sbb-pod
+
+controlplane $ 
+controlplane $ vi secret-busybox-pod.yaml 
+controlplane $ 
+controlplane $ kubectl apply -f busybox-pod.yaml 
+deployment.apps/busybox-pod created
+service/busybox-pod created
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl get po
+NAME                           READY   STATUS    RESTARTS   AGE
+busybox-pod-69b6cdf8b4-2986x   2/2     Running   0          2m4s
+controlplane $ 
+controlplane $ kubectl apply -f secret-busybox-pod.yaml 
+service/busybox-pod configured
+The Deployment "secret-busybox-pod" is invalid: 
+* spec.template.spec.volumes[0].secret: Forbidden: may not specify more than 1 volume type
+* spec.template.spec.containers[0].volumeMounts[0].name: Not found: "my-volume"
+* spec.template.spec.containers[1].volumeMounts[0].name: Not found: "my-volume"
+controlplane $ 
+controlplane $ vi secret-busybox-pod.yaml 
+controlplane $ 
+controlplane $ kubectl apply -f secret-busybox-pod.yaml 
+service/busybox-pod unchanged
+The Deployment "secret-busybox-pod" is invalid: 
+* spec.template.spec.volumes[0].secret: Forbidden: may not specify more than 1 volume type
+* spec.template.spec.containers[0].volumeMounts[0].name: Not found: "my-secret-volume"
+* spec.template.spec.containers[1].volumeMounts[0].name: Not found: "my-secret-volume"
+controlplane $ 
+controlplane $ vi secret-busybox-pod.yaml 
+controlplane $ 
+controlplane $ kubectl get secrets                
+NAME        TYPE     DATA   AGE
+user-cred   Opaque   2      7m26s
+controlplane $ 
+controlplane $ vi secret-busybox-pod.yaml 
+controlplane $ 
+controlplane $ 
+controlplane $ 
+controlplane $ vi secret-busybox-pod.yaml 
+controlplane $ 
+controlplane $ vi secret-busybox-pod.yaml 
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl apply -f secret-busybox-pod.yaml 
+service/busybox-pod unchanged
+The Deployment "secret-busybox-pod" is invalid: 
+* spec.template.spec.volumes[0].secret: Forbidden: may not specify more than 1 volume type
+* spec.template.spec.containers[0].volumeMounts[0].name: Not found: "my-secret-volume"
+* spec.template.spec.containers[1].volumeMounts[0].name: Not found: "my-secret-volume"
+controlplane $ 
+controlplane $ vi secret-busybox-pod.yaml 
+controlplane $ 
+controlplane $ kubectl apply -f secret-busybox-pod.yaml 
+deployment.apps/secret-busybox-pod created
+service/busybox-pod unchanged
+controlplane $ 
+controlplane $ kubectl get pod
+NAME                                  READY   STATUS    RESTARTS   AGE
+busybox-pod-69b6cdf8b4-2986x          2/2     Running   0          8m32s
+secret-busybox-pod-6fc569f94b-spkbj   2/2     Running   0          12s
+controlplane $ 
+controlplane $ 
+controlplane $ 
+controlplane $ 
+controlplane $ date
+Wed Aug  3 12:41:52 UTC 2022
+controlplane $ 
+controlplane $ cat secret-busybox-pod.yaml 
+
+# Config Deployment Frontend & Backend with Volume
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sbb-app
+  name: secret-busybox-pod 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sbb-app
+  template:
+    metadata:
+      labels:
+        app: sbb-app
+    spec:
+      containers:
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: one-busybox
+          ports:
+          - containerPort: 80
+          volumeMounts:
+            - mountPath: /static
+              name: my-secret-volume
+        - image: zakharovnpa/k8s-busybox:02.08.22
+          imagePullPolicy: IfNotPresent
+          name: two-busybox
+          volumeMounts:
+            - mountPath: /tmp/cache
+              name: my-secret-volume
+      volumes:
+        - name: my-secret-volume
+          secret:
+            secretName: user-cred
+ 
+---
+# Config Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: busybox-pod
+  labels:
+    app: sbb
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    nodePort: 30092
+  selector:
+    app: sbb-pod
+
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl get secrets 
+NAME        TYPE     DATA   AGE
+user-cred   Opaque   2      11m
+controlplane $ 
+controlplane $ kubectl exec secret-busybox-pod-6fc569f94b-spkbj -it sh -c one-busybox 
+kubectl exec [POD] [COMMAND] is DEPRECATED and will be removed in a future version. Use kubectl exec [POD] -- [COMMAND] instead.
+/ # 
+/ # pwd
+/
+/ # 
+/ # ls
+bin     dev     etc     home    proc    root    static  sys     tmp     usr     var
+/ # 
+/ # cd static/
+/static # 
+/static # ls
+password.txt  username.txt
+/static # 
+/static # cat password.txt 
+‘password’
+/static # 
+/static # cat username.txt 
+‘admin’
+/static # 
 ```
-
+![screen-secret-file-in-volume](/14.1-Kubernetes-Secret/Files/screen-secret-file-in-volume.png)
 
 
 
