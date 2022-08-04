@@ -51,6 +51,10 @@ kubectl delete configmap nginx-config
 ```
 kubectl apply -f nginx-config.yml
 ```
+### Ход решения Задача 1
+- [ ЛР-1. Создание стартового скрипта для создания окружения](/14.3-ConfigMap/Labs/labs-1-create-start.script.md)
+
+
 
 ## Задача 2 (*): Работа с картами конфигураций внутри модуля
 
