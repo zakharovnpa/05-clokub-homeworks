@@ -13,7 +13,7 @@
 * создаётся файл [generator.py](/14.3-ConfigMap/Files/generator.py) - для 
 * создаётся файл [nginx.vhosts.jinja](/14.3-ConfigMap/Files/templates/nginx.vhosts.jinja) - шаблон для generator.py
 * запускаются команды просмотра содержимого созданных файлов
-```
+```sh
 date && \
 mkdir -p My-Project/templates && cd My-Project && \
 touch nginx.conf myapp-pod.yml generator.py templates/nginx.vhosts.jinja && \
@@ -51,8 +51,8 @@ spec:
       - configMapRef:
           name: nginx-config
     volumeMounts:
-      - name: config
-        mountPath: /etc/nginx/conf.d
+      - mountPath: /etc/nginx/conf.d
+        name: config
         readOnly: true
   volumes:
   - name: config
