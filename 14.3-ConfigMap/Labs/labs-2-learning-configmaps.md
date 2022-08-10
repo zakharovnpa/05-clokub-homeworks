@@ -8,10 +8,10 @@
 ### Стартовый скрипт для создания учебной среды
 
 * создается рабочая директория My-Project
-* создаётся файл nginx.conf - для конфигурирования
-* создаётся файл myapp-pod.yml - для 
-* создаётся файл generator.py - для 
-* создаётся файл nginx.vhosts.jinja - для
+* создаётся файл [nginx.conf](/14.3-ConfigMap/Files/nginx.conf) - для конфигурирования
+* создаётся файл [myapp-pod.yml](/14.3-ConfigMap/Files/myapp-pod.yml) - для 
+* создаётся файл [generator.py](/14.3-ConfigMap/Files/generator.py) - для 
+* создаётся файл [nginx.vhosts.jinja](/14.3-ConfigMap/Files/templates/nginx.vhosts.jinja) - для
 * запускаются команды просмотра содержимого созданных файлов
 ```
 date && \
