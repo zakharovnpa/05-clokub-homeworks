@@ -87,7 +87,7 @@ cat myapp-pod.yml && \
 echo "cat nginx.conf" && \
 sleep 2 && \
 cat nginx.conf && \
-kubectl create configmap nginx-config --from-file=nginx.conf
+kubectl create configmap nginx-config --from-file=nginx.conf && \
 slep 10 && \
 kubectl apply -f myapp-pod.yml && \
 slep 10 && \
