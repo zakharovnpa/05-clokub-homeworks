@@ -101,7 +101,8 @@ sleep 2 && \
 cat myapp-pod.yml && \
 echo "cat nginx.conf" && \
 sleep 2 && \
-cat nginx.conf
+cat nginx.conf && \
+kubectl create configmap nginx-config --from-file=nginx.conf
 ```
 ### Ход работы
 #### 1. Создание configmap из файла и просмотр содержимого
@@ -314,4 +315,36 @@ BinaryData
 
 Events:  <none>
 controlplane $ 
+```
+#### 3. При запуске пода сложилась ситуация, при которой под не запускается. Состояние - CrashLoopBackOff
+* Причина - не подключены Volume
+* Решение - создать PV, PVC? Вроде не надо, т.к. мы подключаем конфигмапы (по аналогии с секретами)
+
+```
+ontrolplane $ kubectl apply -f myapp-pod.yml 
+pod/netology-14.3 created
+controlplane $ 
+controlplane $ kubectl get pod
+NAME            READY   STATUS              RESTARTS   AGE
+netology-14.3   0/1     ContainerCreating   0          5s
+controlplane $ 
+controlplane $ kubectl get pod
+NAME            READY   STATUS             RESTARTS     AGE
+netology-14.3   0/1     CrashLoopBackOff   1 (2s ago)   8s
+controlplane $ 
+controlplane $ kubectl get pod
+NAME            READY   STATUS      RESTARTS      AGE
+netology-14.3   0/1     Completed   3 (31s ago)   53s
+controlplane $ 
+controlplane $ kubectl get pod
+NAME            READY   STATUS      RESTARTS      AGE
+netology-14.3   0/1     Completed   3 (35s ago)   57s
+controlplane $ 
+controlplane $ kubectl get pod
+NAME            READY   STATUS      RESTARTS      AGE
+netology-14.3   0/1     Completed   3 (40s ago)   62s
+controlplane $ 
+controlplane $ kubectl get pod
+NAME            READY   STATUS             RESTARTS      AGE
+netology-14.3   0/1     CrashLoopBackOff   3 (20s ago)   68s
 ```
