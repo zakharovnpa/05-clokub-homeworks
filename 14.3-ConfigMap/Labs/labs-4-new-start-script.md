@@ -25,7 +25,7 @@ metadata:
 spec:
   containers:
   - name: myapp
-    image: fedora:latest
+    image: zakharovnpa/k8s-fedora:03.08.22
     env:
       - name: SPECIAL_LEVEL_KEY
         valueFrom:
@@ -92,5 +92,6 @@ sleep 10 && \
 kubectl apply -f myapp-pod.yml && \
 sleep 10 && \
 kubectl get pod && \
-controlplane $ kubectl exec netology-14.3 -it -- bash -c env | grep server_name
+kubectl exec netology-14.3 -it -- bash -c env | grep server_name && \
+date
 ```
