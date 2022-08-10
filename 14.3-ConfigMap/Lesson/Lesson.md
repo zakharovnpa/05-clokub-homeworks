@@ -53,6 +53,8 @@ kubectl apply -f nginx-config.yml
 ```
 ### Ход решения Задача 1
 - [ ЛР-1. Создание стартового скрипта для создания окружения](/14.3-ConfigMap/Labs/labs-1-create-start.script.md)
+- [ ЛР-2. Исследование работы Config Map. Для чего они нужны. Как создать. Как подключить. Как использовать.](/14.3-ConfigMap/Labs/labs-2-learning-configmaps.md)
+
 
 ### Логи
 * Tab 1
