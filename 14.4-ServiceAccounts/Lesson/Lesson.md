@@ -10,12 +10,35 @@
 ```
 kubectl create serviceaccount netology
 ```
+#### Ответ:
+```
+controlplane $ kubectl create serviceaccount netology
+serviceaccount/netology created
+```
 
 ### Как просмотреть список сервис-акаунтов?
 
 ```
 kubectl get serviceaccounts
 kubectl get serviceaccount
+```
+#### Ответ:
+```
+controlplane $ 
+controlplane $ kubectl get serviceaccounts 
+NAME       SECRETS   AGE
+default    0         94d
+netology   0         20s
+controlplane $ 
+controlplane $ kubectl describe serviceaccounts netology 
+Name:                netology
+Namespace:           default
+Labels:              <none>
+Annotations:         <none>
+Image pull secrets:  <none>
+Mountable secrets:   <none>
+Tokens:              <none>
+Events:              <none>
 ```
 
 ### Как получить информацию в формате YAML и/или JSON?
@@ -24,6 +47,32 @@ kubectl get serviceaccount
 kubectl get serviceaccount netology -o yaml
 kubectl get serviceaccount default -o json
 ```
+#### Ответ:
+```
+controlplane $ kubectl get serviceaccount netology -o yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: "2022-08-11T03:51:59Z"
+  name: netology
+  namespace: default
+  resourceVersion: "22130"
+  uid: ce997a02-91cc-4ad2-b8bb-4f3e64864e2f
+```
+```
+controlplane $ kubectl get serviceaccount default -o json
+{
+    "apiVersion": "v1",
+    "kind": "ServiceAccount",
+    "metadata": {
+        "creationTimestamp": "2022-05-08T19:32:41Z",
+        "name": "default",
+        "namespace": "default",
+        "resourceVersion": "404",
+        "uid": "838f4de4-1e99-43c0-81ac-35e48730d289"
+    }
+}
+```
 
 ### Как выгрузить сервис-акаунты и сохранить его в файл?
 
@@ -31,17 +80,76 @@ kubectl get serviceaccount default -o json
 kubectl get serviceaccounts -o json > serviceaccounts.json
 kubectl get serviceaccount netology -o yaml > netology.yml
 ```
-
+#### Ответ:
+```
+controlplane $ kubectl get serviceaccounts -o json > serviceaccounts.json
+controlplane $ 
+controlplane $ cat serviceaccounts.json 
+{
+    "apiVersion": "v1",
+    "items": [
+        {
+            "apiVersion": "v1",
+            "kind": "ServiceAccount",
+            "metadata": {
+                "creationTimestamp": "2022-05-08T19:32:41Z",
+                "name": "default",
+                "namespace": "default",
+                "resourceVersion": "404",
+                "uid": "838f4de4-1e99-43c0-81ac-35e48730d289"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "ServiceAccount",
+            "metadata": {
+                "creationTimestamp": "2022-08-11T03:51:59Z",
+                "name": "netology",
+                "namespace": "default",
+                "resourceVersion": "22130",
+                "uid": "ce997a02-91cc-4ad2-b8bb-4f3e64864e2f"
+            }
+        }
+    ],
+    "kind": "List",
+    "metadata": {
+        "resourceVersion": ""
+    }
+}
+```
+```
+controlplane $ kubectl get serviceaccount netology -o yaml > netology.yml
+controlplane $ 
+controlplane $ cat netology.yml 
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: "2022-08-11T03:51:59Z"
+  name: netology
+  namespace: default
+  resourceVersion: "22130"
+  uid: ce997a02-91cc-4ad2-b8bb-4f3e64864e2f
+```
 ### Как удалить сервис-акаунт?
 
 ```
 kubectl delete serviceaccount netology
 ```
-
+#### Ответ:
+```
+controlplane $ kubectl delete serviceaccount netology
+serviceaccount "netology" deleted
+```
 ### Как загрузить сервис-акаунт из файла?
 
 ```
 kubectl apply -f netology.yml
+```
+
+#### Ответ:
+```
+controlplane $ kubectl apply -f netology.yml
+serviceaccount/netology created
 ```
 
 ## Задача 2 (*): Работа с сервис-акаунтами внутри модуля
