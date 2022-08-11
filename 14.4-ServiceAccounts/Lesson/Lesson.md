@@ -194,7 +194,7 @@ cat ~/.kube/config
 ```
 kubectl cluster-info
 ```
-
+- [ЛР-3. Запуск пода с командами и просмотр результатов выполнения команд.](/14.4-ServiceAccounts/Labs/labs-3-how-start-pod-with-command.md)
 ---
 
 ### Как оформить ДЗ?
