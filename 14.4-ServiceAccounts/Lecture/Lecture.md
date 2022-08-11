@@ -36,9 +36,19 @@ RTLabs
   - namespace
   - token
 - Если мы найдем эти три файла, значит мы работаем в Kubernetes  
-- Поэтому пути мы можем ходить и читать данные для предоставления их 
+- По этому пути мы можем ходить и читать данные для предоставления их 
 тем приложениям, которые взаимодействуют с кубрнетисом.
-
+```
+ontrolplane $ kubectl logs netology-14.5 
+total 4
+drwxrwxrwt 3 root root  140 Aug 11 07:59 .
+drwxr-xr-x 3 root root 4096 Aug 11 07:59 ..
+drwxr-xr-x 2 root root  100 Aug 11 07:59 ..2022_08_11_07_59_45.1666067405
+lrwxrwxrwx 1 root root   32 Aug 11 07:59 ..data -> ..2022_08_11_07_59_45.1666067405
+lrwxrwxrwx 1 root root   13 Aug 11 07:59 ca.crt -> ..data/ca.crt
+lrwxrwxrwx 1 root root   16 Aug 11 07:59 namespace -> ..data/namespace
+lrwxrwxrwx 1 root root   12 Aug 11 07:59 token -> ..data/token
+```
 
 
 ### 7Использование
