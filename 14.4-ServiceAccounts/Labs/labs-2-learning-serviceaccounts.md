@@ -31,10 +31,10 @@ $ kubectl create ns $NAMESPACE
 $ kubectl create serviceaccount $ACCOUNT_NAME --namespace $NAMESPACE
 ```
  
-Подготовим дополнительные переменные среды, запускаем оманды последовательно
+Подготовим дополнительные переменные среды, запускаем команды последовательно
 
 ```shell script
-$ TOKEN_NAME=$(kubectl get serviceAccounts $ACCOUNT_NAME --namespace $NAMESPACE  -o jsonpath="{.secrets[0].name}")
+$ TOKEN_NAME=$(kubectl get serviceAccounts $ACCOUNT_NAME --namespace $NAMESPACE  -o jsonpath="{.secrets[0].name}") 
 $ TOKEN=$(kubectl describe secrets $TOKEN_NAME --namespace $NAMESPACE | grep 'token:' | rev | cut -d ' ' -f1 | rev)
 $ CERTIFICATE_AUTHORITY_DATA=$(kubectl config view --flatten --minify -o jsonpath="{.clusters[0].cluster.certificate-authority-data}")
 $ SERVER_URL=$(kubectl config view --flatten --minify -o jsonpath="{.clusters[0].cluster.server}")
@@ -126,7 +126,7 @@ $ kubectl --kubeconfig=$CLUSTER_NAME-$ACCOUNT_NAME-kube.conf get po -n $NAMESPAC
 
 ---
 
-# Создаем кластерную роль, достук ко всем неймспейсам (админы)
+# Создаем кластерную роль, доступ ко всем неймспейсам (админы)
 
 ## 1. Переменные среды
 
