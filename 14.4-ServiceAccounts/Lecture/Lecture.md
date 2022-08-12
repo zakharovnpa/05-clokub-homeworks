@@ -85,12 +85,14 @@ lrwxrwxrwx 1 root root   12 Aug 11 07:59 token -> ..data/token
 Т.к. в большинстве случаев сертификат является самоподписанным,
 то kubernetes великодушно предоставляет нам корневой сертификат
 в виде файла ca.crt
+- Выполните поочередно эти команды. Можно создать скрипт  Bash.
 
-    K8S=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT
-    SADIR=/var/run/secrets/kubernetes.io/serviceaccount
-    TOKEN=$(cat $SADIR/token)
-    CACERT=$SADIR/ca.crt
-    NAMESPACE=$(cat $SADIR/namespace)
+
+        K8S=https://$KUBERNETES_SERVICE_HOST:$KUBERNETES_SERVICE_PORT
+        SADIR=/var/run/secrets/kubernetes.io/serviceaccount
+        TOKEN=$(cat $SADIR/token)
+        CACERT=$SADIR/ca.crt
+        NAMESPACE=$(cat $SADIR/namespace)
 
 ### 11Пример запроса
 
