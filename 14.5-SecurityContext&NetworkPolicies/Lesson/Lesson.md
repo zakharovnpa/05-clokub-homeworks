@@ -1,5 +1,9 @@
 ## Ход выполнения ДЗ по теме "14.5 SecurityContext, NetworkPolicies"
 
+
+[links-1](https://man7.org/linux/man-pages/man7/capabilities.7.html)
+[books SELinux](https://www.wildberries.ru/catalog/15135797/detail.aspx)
+
 ## Задача 1: Рассмотрите пример 14.5/example-security-context.yml
 
 Создайте модуль
