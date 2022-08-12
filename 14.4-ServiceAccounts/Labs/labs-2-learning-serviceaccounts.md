@@ -20,9 +20,34 @@ $ ROLENAME=read-exec-pods-svc-ing
 ```shell script
 $ kubectl create ns $NAMESPACE
 ```
+### Ход решения
+* Создаем переменные окружения:
 
+```shell script
+ACCOUNT_NAME=kraken
+NAMESPACE=netology-svc-demo
+ROLENAME=read-exec-pods-svc-ing
+```
+```
+controlplane $ ACCOUNT_NAME=kraken
+controlplane $ 
+controlplane $ NAMESPACE=netology-svc-demo
+controlplane $ 
+controlplane $ ROLENAME=read-exec-pods-svc-ing
+controlplane $ echo $ACCOUNT_NAME
+kraken
+controlplane $ 
+controlplane $ echo $NAMESPACE
+netology-svc-demo
+controlplane $ 
+controlplane $ echo $ROLENAME
+read-exec-pods-svc-ing
+```
+* Создаем неймспейс
 
-
+```shell script
+kubectl create ns $NAMESPACE
+```
 ## 2. Создаем конфиг для подключение к кластеру
 
 Создадим сервисаккаунт
@@ -72,6 +97,104 @@ $ kubectl --kubeconfig=$CLUSTER_NAME-$ACCOUNT_NAME-kube.conf get po -n $NAMESPAC
 Мы получим ошибку, потому что у нас нет роли и связки этой роли с сервисаккаунтом
 
 > Error from server (Forbidden): pods is forbidden: User "system:serviceaccount:firstnamespace:test-service-account" cannot list resource "pods" in API group "" in the namespace "firstnamespace"
+
+### Ход решения
+
+* Создадим сервисаккаунт
+
+```shell script
+kubectl create serviceaccount $ACCOUNT_NAME --namespace $NAMESPACE
+```
+* Результат:
+
+```
+controlplane $ kubectl create serviceaccount $ACCOUNT_NAME --namespace $NAMESPACE
+serviceaccount/kraken created
+controlplane $ 
+controlp
+controlplane $ kubectl get serviceaccounts 
+NAME      SECRETS   AGE
+default   0         95d
+controlplane $ 
+controlplane $ kubectl -n $NAMESPACE get serviceaccounts 
+NAME      SECRETS   AGE
+default   0         2m59s
+kraken    0         61s
+```
+
+* Подготовим дополнительные переменные среды, запускаем команды последовательно
+
+```shell script
+TOKEN_NAME=$(kubectl get serviceAccounts $ACCOUNT_NAME --namespace $NAMESPACE  -o jsonpath="{.secrets[0].name}") 
+TOKEN=$(kubectl describe secrets $TOKEN_NAME --namespace $NAMESPACE | grep 'token:' | rev | cut -d ' ' -f1 | rev)
+CERTIFICATE_AUTHORITY_DATA=$(kubectl config view --flatten --minify -o jsonpath="{.clusters[0].cluster.certificate-authority-data}")
+SERVER_URL=$(kubectl config view --flatten --minify -o jsonpath="{.clusters[0].cluster.server}")
+CLUSTER_NAME=$(kubectl config view --flatten --minify -o jsonpath="{.clusters[0].name}")
+```
+* Результат: переменная TOKEN_NAME не создалась, т.к. не созданы секреты и не ттокена
+
+```
+controlplane $ TOKEN_NAME=$(kubectl get serviceAccounts $ACCOUNT_NAME --namespace $NAMESPACE  -o jsonpath="{.secrets[0].name}") 
+controlplane $ 
+controlplane $ echo $TOKEN_NAME
+
+controlplane $ kubectl get serviceAccounts $ACCOUNT_NAME --namespace $NAMESPACE
+NAME     SECRETS   AGE
+kraken   0         5m33s
+controlplane $ 
+```
+* Нет секретов. Надо пойти в секреты и посмотреть. Если его нет, то надо создать
+
+```
+controlplane $ kubectl get serviceAccounts $ACCOUNT_NAME --namespace $NAMESPACE -o json
+{
+    "apiVersion": "v1",
+    "kind": "ServiceAccount",
+    "metadata": {
+        "creationTimestamp": "2022-08-12T03:04:24Z",
+        "name": "kraken",
+        "namespace": "netology-svc-demo",
+        "resourceVersion": "8130",
+        "uid": "b2ed47ac-2de0-461f-96a9-a0a74d3a11bd"
+    }
+}
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl get serviceAccounts $ACCOUNT_NAME --namespace $NAMESPACE -o jsonpath="{.secrets[0].name}"
+controlplane $ 
+controlplane $ kubectl get serviceaccounts -n $NAMESPACE kraken -o yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: "2022-08-12T03:04:24Z"
+  name: kraken
+  namespace: netology-svc-demo
+  resourceVersion: "8130"
+  uid: b2ed47ac-2de0-461f-96a9-a0a74d3a11bd
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl describe serviceaccounts -n $NAMESPACE kraken        
+Name:                kraken
+Namespace:           netology-svc-demo
+Labels:              <none>
+Annotations:         <none>
+Image pull secrets:  <none>
+Mountable secrets:   <none>
+Tokens:              <none>
+Events:              <none>
+controlplane $ 
+
+```
+* Создание секрета
+
+```
+openssl genrsa -out cert.key 4096 
+
+openssl req -x509 -new -key cert.key -days 3650 -out cert.crt \
+-subj '/C=RU/ST=Moscow/L=Moscow/CN=server.local'
+kubectl create secret tls domain-cert --cert=cert.crt --key=cert.key
+```
+
 
 
 ## 3. Создаем роль
@@ -143,7 +266,7 @@ $ ROLENAME=read-exec-pods-svc-ing-global
 $ kubectl create serviceaccount $ACCOUNT_NAME
 ```
  
-Подготовим дополнительные переменные среды, запускаем оманды последовательно
+Подготовим дополнительные переменные среды, запускаем команды последовательно
 
 
 ```shell script
