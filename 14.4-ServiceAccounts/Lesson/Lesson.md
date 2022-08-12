@@ -194,7 +194,14 @@ cat ~/.kube/config
 ```
 kubectl cluster-info
 ```
+* Успешное решение:
+
+- [ЛР-4. Выполнение ДЗ. Задача 2(*)](/14.4-ServiceAccounts/Labs/labs-4-task-2.md)
+
+* Неуспешное решение:
+
 - [ЛР-3. Запуск пода с командами и просмотр результатов выполнения команд.](/14.4-ServiceAccounts/Labs/labs-3-how-start-pod-with-command.md)
+- 
 ---
 
 ### Как оформить ДЗ?
