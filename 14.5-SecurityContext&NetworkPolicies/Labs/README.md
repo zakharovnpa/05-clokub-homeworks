@@ -4,6 +4,7 @@
 
 ```
 date && \
+mkdir -p My-Project && cd My-Project && \
 touch example-security-context.yml example-network-policy.yml
 echo "
 ---
