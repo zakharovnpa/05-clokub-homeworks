@@ -7,9 +7,7 @@
 
 <details>
   <summary> "Используемые инструменты"</summary>
-1. Terraform
-2. Yandex.Cloud
-3. AWS
+Terraform, Yandex.Cloud, AWS
 </details>
 
 14.2 [Синхронизация секретов с внешними сервисами. Vault](https://github.com/zakharovnpa/05-clokub-homeworks/tree/main/14.2-Synchronization-services)
