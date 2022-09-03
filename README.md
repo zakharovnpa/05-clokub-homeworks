@@ -6,9 +6,10 @@
 14.1 [Создание и использование секретов](https://github.com/zakharovnpa/05-clokub-homeworks/tree/main/14.1-Kubernetes-Secret)
 
 <details>
-  <summary>* "Используемые инструменты"</summary>
-1. ПО-1
-2. ПО-2
+  <summary> "Используемые инструменты"</summary>
+1. Terraform
+2. Yandex.Cloud
+3. AWS
 </details>
 
 14.2 [Синхронизация секретов с внешними сервисами. Vault](https://github.com/zakharovnpa/05-clokub-homeworks/tree/main/14.2-Synchronization-services)
