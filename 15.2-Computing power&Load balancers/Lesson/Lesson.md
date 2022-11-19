@@ -12,13 +12,25 @@
 - Сделать файл доступным из Интернет.
 2. Создать группу ВМ в public подсети фиксированного размера с шаблоном LAMP и web-страничкой, содержащей ссылку на картинку из bucket:
 - Создать Instance Group с 3 ВМ и шаблоном LAMP. Для LAMP рекомендуется использовать `image_id = fd827b91d99psvq5fjit`;
-- Для создания стартовой веб-страницы рекомендуется использовать раздел `user_data` в [meta_data](https://cloud.yandex.ru/docs/compute/concepts/vm-metadata);
+- Для создания стартовой веб-страницы рекомендуется использовать раздел `user_data` в [meta_data](https://cloud.yandex.ru/docs/compute/concepts/vm-metadata); > Пояснение: раздел должен быть `user-data`
 - Разместить в стартовой веб-странице шаблонной ВМ ссылку на картинку из bucket;
-- Настроить проверку состояния ВМ.
+- Настроить проверку состояния ВМ. > Пояснение: настроить halthcheck
 3. Подключить группу к сетевому балансировщику:
 - Создать сетевой балансировщик;
 - Проверить работоспособность, удалив одну или несколько ВМ.
 4. *Создать Application Load Balancer с использованием Instance group и проверкой состояния.
+
+> Пояснение: в бакете делать правила доступа не на весь бакет, а на каждый файл (обект) в отдельности.
+
+> Пояснение: с помощью yandex comute instance group
+
+> Пояснение: как вывести в  output ip сетевого балансировщика
+- Пример из заключительной лекции по задачам курса на - 00:12:50. Вывод показан там же.
+```tf
+output "external_ip_address_nlb" {
+    value = yandex_lb_network_load_balancer.my-network-load-balancer.listener.*.external_address.spec
+}
+```
 
 Документация
 - [Compute instance group](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/compute_instance_group)
