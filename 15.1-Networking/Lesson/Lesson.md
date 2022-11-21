@@ -85,7 +85,7 @@ resource "yandex_vpc_subnet" "public" {
   
   
 2.4 - Добавить в таблицу маршрутизации маршрут, направляющий весь исходящий трафик в Internet gateway.
-* Используемый ресурс[yandex_vpc_route_table](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_route_table)
+* Используемый ресурс [yandex_vpc_route_table](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_route_table)
 - Пример кода для таблицы маршрутизации
 ```tf
 resource "yandex_vpc_network" "lab-net" {
@@ -156,6 +156,47 @@ resource "yandex_vpc_security_group" "group1" {
   }
 }
 ```
+ [yandex_vpc_default_security_group](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_default_security_group)
+- Пример 
+```tf
+resource "yandex_vpc_network" "lab-net" {
+  name = "lab-network"
+}
+
+resource "yandex_vpc_default_security_group" "default-sg" {
+  description = "description for default security group"
+  network_id  = "${yandex_vpc_network.lab-net.id}"
+
+  labels = {
+    my-label = "my-label-value"
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "rule1 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    port           = 8080
+  }
+
+  egress {
+    protocol       = "ANY"
+    description    = "rule2 description"
+    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+
+  egress {
+    protocol       = "UDP"
+    description    = "rule3 description"
+    v4_cidr_blocks = ["10.0.1.0/24"]
+    from_port      = 8090
+    to_port        = 8099
+  }
+}
+
+```
+
 * Используемый ресурс [yandex_vpc_security_group_rule](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_security_group_rule)
 - Пример
 
