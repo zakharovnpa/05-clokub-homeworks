@@ -57,7 +57,23 @@ Resource terraform
 - [Internet Gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway)
 
 ### Ход выполнения ДЗ
-В Terraform подготовить код для 
+В Terraform подготовить код для развертывания ресурсов в облаке:
+- VPC
+  - [yandex_vpc_gateway](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_gateway) 
+- сеть
+- подсеть public в регионе 1-a
+- подсеть private в регионе 1-b
+- instance frontend в подсети public 
+- instance backend в подсети private
+- instance NAT с возможностью получить белый IP
+- Route table для заворачивания трафика с backend на NAT instanceи потом в Интернет
+  - [yandex_vpc_route_table](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_route_table)
+- Security group с разрешающими правилами на SSH и ICMP
+  - [yandex_vpc_default_security_group](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_default_security_group)
+  - [yandex_vpc_security_group](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_security_group)
+  - [yandex_vpc_security_group_rule](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_security_group_rule)
+
+
 1. Создать VPC.
 - Создать пустую VPC. Выбрать зону.
 
