@@ -63,6 +63,7 @@ Resource terraform
 - сеть
 - подсеть public в регионе 1-a
 - подсеть private в регионе 1-b
+- image для создания instance frontend и backend
 - instance frontend в подсети public 
 - instance backend в подсети private
 - instance NAT с возможностью получить белый IP
