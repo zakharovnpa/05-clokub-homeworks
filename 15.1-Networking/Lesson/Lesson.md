@@ -56,7 +56,15 @@ Resource terraform
 - [Subnet](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet)
 - [Internet Gateway](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway)
 
-### Ход выполнения ДЗ
+# Ход выполнения ДЗ
+
+## Документация на сайте Яндекс
+- [Начало работы с Terraform](https://cloud.yandex.ru/docs/tutorials/infrastructure-management/terraform-quickstart)
+
+## ЛР-221126_2200 по развертыванию тестовых ресурсов на основе старых конфигураций из других уроков.
+- директория исполнения команд и расположения файлов Terraform `root@PC-Ubuntu:~/learning-terraform/yandex-cloud/Alfa#` 
+- 
+
 В Terraform подготовить код для развертывания ресурсов в облаке:
 - VPC
   - [yandex_vpc_gateway](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_gateway) 
