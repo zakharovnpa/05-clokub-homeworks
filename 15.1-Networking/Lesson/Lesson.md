@@ -61,11 +61,69 @@ Resource terraform
 ## Документация на сайте Яндекс
 - [Начало работы с Terraform](https://cloud.yandex.ru/docs/tutorials/infrastructure-management/terraform-quickstart)
 
+
+## Подключение зеркала Яндекс для работы Terraformв случае ошибки доступа:
+```
+root@PC-Ubuntu:~/learning-terraform/yandex-cloud/clokub-terraform# terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding latest version of yandex-cloud/yandex...
+╷
+│ Error: Failed to query available provider packages
+│ 
+│ Could not retrieve the list of available versions for provider yandex-cloud/yandex: could not connect to registry.terraform.io: Failed to request discovery document: 403 Forbidden
+╵
+```
+Статья [Настройте провайдер](https://cloud.yandex.ru/docs/tutorials/infrastructure-management/terraform-quickstart#configure-provider)
+
+- Создаем файл `vim ~/.terraformrc`
+- Добавляем в него блок:
+```
+provider_installation {
+  network_mirror {
+    url = "https://terraform-mirror.yandexcloud.net/"
+    include = ["registry.terraform.io/*/*"]
+  }
+  direct {
+    exclude = ["registry.terraform.io/*/*"]
+  }
+}
+```
+- Результат инициализации Terraform. Получили работающий Terraform без необходимости настройки VPN
+```
+root@PC-Ubuntu:~/learning-terraform/yandex-cloud/clokub-terraform# terraform init
+
+Initializing the backend...
+
+Initializing provider plugins...
+- Finding latest version of yandex-cloud/yandex...
+- Installing yandex-cloud/yandex v0.83.0...
+- Installed yandex-cloud/yandex v0.83.0 (unauthenticated)
+
+Terraform has created a lock file .terraform.lock.hcl to record the provider
+selections it made above. Include this file in your version control repository
+so that Terraform can guarantee to make the same selections by default when
+you run "terraform init" in the future.
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+
+```
+
 ## ЛР-221126_2200 по развертыванию тестовых ресурсов на основе старых конфигураций из других уроков.
 - директория исполнения команд и расположения файлов Terraform `root@PC-Ubuntu:~/learning-terraform/yandex-cloud/Alfa#` 
-- 
 
-В Terraform подготовить код для развертывания ресурсов в облаке:
+
+## В Terraform подготовить код для развертывания ресурсов в облаке:
 - VPC
   - [yandex_vpc_gateway](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/vpc_gateway) 
 - сеть
