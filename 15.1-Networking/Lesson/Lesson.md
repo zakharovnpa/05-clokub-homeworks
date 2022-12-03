@@ -121,6 +121,47 @@ commands will detect it and remind you to do so if necessary.
 
 ## ЛР-221126_2200 по развертыванию тестовых ресурсов на основе старых конфигураций из других уроков.
 - директория исполнения команд и расположения файлов Terraform `root@PC-Ubuntu:~/learning-terraform/yandex-cloud/Alfa#` 
+- 
+## ЛР-221203_0815 по развертыванию тестовых ресурсов на основе старых конфигураций из других уроков.
+- директория исполнения команд и расположения файлов Terraform `root@PC-Ubuntu:~/learning-terraform/yandex-cloud/clokub-terraform#` 
+### 1. Сделать подключение к облаку через Токен
+- первоначальный файл `provider.tf` с настройками сервисного аккаунта (key.json)
+```tf
+# Provider
+terraform {
+  required_providers {
+    yandex = {
+      source = "yandex-cloud/yandex"
+    }
+  }
+}
+
+provider "yandex" {
+  service_account_key_file = "key.json"   # указание на файл с параметрами авторизации
+  cloud_id  = "${var.yandex_cloud_id}"
+  folder_id = "${var.yandex_folder_id}"
+}
+
+```
+- необходимо использовать Токен
+- Добавьте аутентификационные данные в переменные окружения:
+```
+export YC_TOKEN=$(yc iam create-token)
+export YC_CLOUD_ID=$(yc config get cloud-id)
+export YC_FOLDER_ID=$(yc config get folder-id)
+
+```
+  * YC_TOKEN — [IAM-токен](https://cloud.yandex.ru/docs/iam/concepts/authorization/iam-token).
+  * YC_CLOUD_ID — идентификатор облака.
+  * YC_FOLDER_ID — идентификатор каталога.
+
+
+- новый файл `provider.tf` с настройками для Токена
+
+```tf
+
+```
+
 
 
 ## В Terraform подготовить код для развертывания ресурсов в облаке:
