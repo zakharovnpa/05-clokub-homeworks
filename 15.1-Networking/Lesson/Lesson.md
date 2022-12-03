@@ -184,7 +184,24 @@ export YC_FOLDER_ID=$(yc config get folder-id)
 
 1. Создать VPC.
 - Создать пустую VPC. Выбрать зону.
+  - файл `main.tf`
 
+```tf
+# Provider
+terraform {
+  required_providers {
+    yandex = {
+      source = "yandex-cloud/yandex"
+    }
+  }
+}
+
+provider "yandex" {
+  service_account_key_file = "key.json"
+  cloud_id  = "${var.yandex_cloud_id}"
+  folder_id = "${var.yandex_folder_id}"
+}
+```
 
 2. Публичная подсеть.
   2.1 - Создать в vpc subnet с названием public, сетью 10.10.1.0/24
@@ -203,8 +220,22 @@ resource "yandex_vpc_subnet" "public" {
   network_id     = "${yandex_vpc_network.lab-net.id}"
 }
 ```
+  - файл `network.tf`
+```tf
+# Network
+resource "yandex_vpc_network" "default" {
+  name = "net"
+}
 
-  2.3 - Создать Internet gateway 
+resource "yandex_vpc_subnet" "default" {
+  name = "subnet"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.default.id}"
+  v4_cidr_blocks = ["192.168.101.0/24"]
+}
+
+```
+2.3 - Создать Internet gateway. Это будет instance NAT
   
   
   
@@ -246,7 +277,8 @@ resource "yandex_vpc_route_table" "lab-rt-a" {
 resource "yandex_vpc_network" "lab-net" {
   name = "lab-network"
 }
-
+```
+```tf
 resource "yandex_vpc_security_group" "group1" {
   name        = "My security group"
   description = "description for my security group"
