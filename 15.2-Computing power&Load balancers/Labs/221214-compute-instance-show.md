@@ -18,7 +18,7 @@
 +----------------------+----------+---------------+---------+----------------+----------------+
 ```
   
-#### Параметры natgw
+#### Параметры **natgw**
   
   * `yc compute instance show fhmgecbnao9g5s90f7jm`
 ```yml
@@ -53,7 +53,7 @@ network_settings:
   type: STANDARD
 placement_policy: {}
 ```
-### Параметры frontend
+#### Параметры **frontend**
   
 - yc compute instance show fhmm57js01viubopn0qg
 ```yml
@@ -88,7 +88,7 @@ network_settings:
   type: STANDARD
 placement_policy: {}
 ```
-### Параметры backend
+#### Параметры **backend**
 - yc compute instance show epdflvg75uk87usfmkak
 ```yml
 id: epdflvg75uk87usfmkak
@@ -119,7 +119,7 @@ network_settings:
   type: STANDARD
 placement_policy: {}
 ```
-### Параметры тестовго инстанса 123
+#### Параметры тестовго инстанса **a-123**
 - yc compute instance show fhm4c91boanneufe60kt
 ```yml
 id: fhm4c91boanneufe60kt
