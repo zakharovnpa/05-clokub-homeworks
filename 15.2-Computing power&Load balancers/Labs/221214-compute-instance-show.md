@@ -263,3 +263,106 @@ network_settings:
   type: STANDARD
 placement_policy: {}
 ```
+### Кастомный вариант инстанса **natgw**
+- yc compute instance show fhmu6r9jrm5dipgmu532
+```yml
+id: fhmu6r9jrm5dipgmu532
+folder_id: b1gd3hm4niaifoa8dahm
+created_at: "2022-12-14T09:27:48Z"
+name: natgw
+zone_id: ru-central1-a
+platform_id: standard-v3
+resources:
+  memory: "1073741824"
+  cores: "2"
+  core_fraction: "20"
+status: RUNNING
+boot_disk:
+  mode: READ_WRITE
+  device_name: fhm0alokipad5pv3n2oi
+  auto_delete: true
+  disk_id: fhm0alokipad5pv3n2oi
+network_interfaces:
+- index: "0"
+  mac_address: d0:0d:1e:36:d3:3d
+  subnet_id: e9bq7hi6enu74ihcc8ak
+  primary_v4_address:
+    address: 192.168.10.254
+    one_to_one_nat:
+      address: 158.160.53.254
+      ip_version: IPV4
+fqdn: natgw.netology.yc
+scheduling_policy:
+  preemptible: true
+network_settings:
+  type: STANDARD
+placement_policy: {}
+```
+- yc compute instance show fhmu6r9jrm5dipgmu532
+```yml
+id: fhmu6r9jrm5dipgmu532
+folder_id: b1gd3hm4niaifoa8dahm
+created_at: "2022-12-14T09:27:48Z"
+name: natgw
+zone_id: ru-central1-a
+platform_id: standard-v3
+resources:
+  memory: "1073741824"
+  cores: "2"
+  core_fraction: "20"
+status: RUNNING
+boot_disk:
+  mode: READ_WRITE
+  device_name: fhm0alokipad5pv3n2oi
+  auto_delete: true
+  disk_id: fhm0alokipad5pv3n2oi
+network_interfaces:
+- index: "0"
+  mac_address: d0:0d:1e:36:d3:3d
+  subnet_id: e9bq7hi6enu74ihcc8ak
+  primary_v4_address:
+    address: 192.168.10.254
+    one_to_one_nat:
+      address: 158.160.53.254
+      ip_version: IPV4
+fqdn: natgw.netology.yc
+scheduling_policy:
+  preemptible: true
+network_settings:
+  type: STANDARD
+placement_policy: {}
+```
+- yc compute instance show fhmu6r9jrm5dipgmu532
+```yml
+id: fhmu6r9jrm5dipgmu532
+folder_id: b1gd3hm4niaifoa8dahm
+created_at: "2022-12-14T09:27:48Z"
+name: natgw
+zone_id: ru-central1-a
+platform_id: standard-v2
+resources:
+  memory: "536870912"
+  cores: "2"
+  core_fraction: "5"
+status: RUNNING
+boot_disk:
+  mode: READ_WRITE
+  device_name: fhm0alokipad5pv3n2oi
+  auto_delete: true
+  disk_id: fhm0alokipad5pv3n2oi
+network_interfaces:
+- index: "0"
+  mac_address: d0:0d:1e:36:d3:3d
+  subnet_id: e9bq7hi6enu74ihcc8ak
+  primary_v4_address:
+    address: 192.168.10.254
+    one_to_one_nat:
+      address: 51.250.12.204
+      ip_version: IPV4
+fqdn: natgw.netology.yc
+scheduling_policy:
+  preemptible: true
+network_settings:
+  type: STANDARD
+placement_policy: {}
+```
