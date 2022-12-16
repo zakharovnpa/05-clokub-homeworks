@@ -13,7 +13,7 @@
 1. Создать VPC.
 - Создать пустую VPC. Выбрать зону.
 
-Ответ: Создана VPC. Выбор двух разных зон `ru-central1-a` и `ru-central1-b` будет выполнен при создании подсетей 
+Ответ: Создана VPC. Выбираем зону `ru-central1-a`
 * Основная конфигурация
 ```tf
 terraform {
@@ -28,6 +28,7 @@ provider "yandex" {
   service_account_key_file = "key.json"
   cloud_id  = var.yandex_cloud_id
   folder_id = var.yandex_folder_id
+  zone      = "ru-central1-a"
 }
 
 resource "yandex_vpc_network" "default" {
