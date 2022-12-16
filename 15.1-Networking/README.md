@@ -235,6 +235,34 @@ resource "yandex_compute_instance" "backend" {
 
 ![screen-backend-internet](/15.1-Networking/Files/screen-backend-internet.png)
 
+4. Создаем группу безопасности - Security group для ограничения сетевого доступа к инстансам и ресурсам
+- В данной конфигурации для теста разрешены доступы по всем протоклоам и всем портам между сетями public и private, т.е только внутренний трафик
+```tf
+resource "yandex_vpc_security_group" "natgw" {
+  name        = "Security group for NAt-instance"
+  description = "Traffic instance NAT"
+  network_id  = "${yandex_vpc_network.default.id}"
+
+  labels = {
+    my-label = "my-label-value"
+  }
+
+  ingress {
+    protocol       = "ANY"
+    description    = "from frontend and backup to natgw"
+    v4_cidr_blocks = ["192.168.10.0/24", "192.168.20.0/24"]
+    port           = -1
+  }
+
+  egress {
+    protocol       = "ANY"
+    description    = "from natgw to frontend and backup"
+    v4_cidr_blocks = ["192.168.10.0/24", "192.168.20.0/24"]
+    port      = -1
+  }
+}
+```
+
 Resource terraform для ЯО
 - [VPC subnet](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/vpc_subnet)
 - [Route table](https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/vpc_route_table)
@@ -258,6 +286,8 @@ Resource terraform для ЯО
 - Добавить Route, направляющий весь исходящий трафик private сети в NAT.
 - Создать виртуалку в приватной сети.
 - Подключиться к ней по SSH по приватному IP через виртуалку, созданную ранее в публичной подсети и убедиться, что с виртуалки есть выход в интернет.
+
+Ответ: задание 2 не выполнено
 
 Resource terraform
 - [VPC](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc)
