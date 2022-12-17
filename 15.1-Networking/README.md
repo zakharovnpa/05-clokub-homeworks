@@ -74,16 +74,16 @@ resource "yandex_vpc_subnet" "subnet_pub" {
 ```tf
 #Instance natgw
 resource "yandex_compute_instance" "natgw" {
-  name                      = "natgw"                 // название инстанса
-  zone                      = "ru-central1-a"         // зона размещения
+  name                      = "natgw"
+  zone                      = "ru-central1-a"
   hostname                  = "natgw.netology.yc"
-  platform_id               = "standard-v3"           // тип ВМ - Intel Ice Lake
+  platform_id               = "standard-v3"
   allow_stopping_for_update = true
 
   resources {
     cores  = 2
     memory = 1
-    core_fraction = "20"                //загрузка процессора не более 20%
+    core_fraction = "20"
   }
 
   boot_disk {
@@ -97,12 +97,13 @@ resource "yandex_compute_instance" "natgw" {
 
   network_interface {
     subnet_id      = yandex_vpc_subnet.subnet_pub.id
-    nat            = true                  // с присвоением внешнего ip
-    ip_address = "192.168.10.254"          // ip в локальной сети
+    security_group_ids = [yandex_vpc_security_group.natgw.id]  # привязка группы безопасности к интерфейсу инстанса
+    nat            = true
+    ip_address = "192.168.10.254"
   }
 
   scheduling_policy {
-    preemptible = true          // Прерываемая ВМ
+    preemptible = true  // Прерываемая ВМ
 
   }
 
@@ -241,6 +242,7 @@ resource "yandex_compute_instance" "backend" {
 4. Создаем группу безопасности - Security group для ограничения сетевого доступа к инстансам и ресурсам
 - В данной конфигурации для теста разрешены доступы по всем протоклоам и всем портам между сетями public и private, т.е только внутренний трафик
 ```tf
+#Security group
 resource "yandex_vpc_security_group" "natgw" {
   name        = "Security group for NAt-instance"
   description = "Traffic instance NAT"
@@ -251,17 +253,17 @@ resource "yandex_vpc_security_group" "natgw" {
   }
 
   ingress {
-    protocol       = "ANY"
-    description    = "from frontend and backup to natgw"
-    v4_cidr_blocks = ["192.168.10.0/24", "192.168.20.0/24"]
-    port           = -1
+    protocol       = "TCP"
+    description    = "secure shell from Internet to natgw"
+    v4_cidr_blocks = ["0.0.0.0/0"]      # для всех адресов
+    port        = 22                    # for ssh
   }
 
   egress {
-    protocol       = "ANY"
+    protocol       = "ANY"                    # любые протоклоы
     description    = "from natgw to frontend and backup"
-    v4_cidr_blocks = ["192.168.10.0/24", "192.168.20.0/24"]
-    port      = -1
+    v4_cidr_blocks = ["192.168.10.11/32", "192.168.20.11/32"]            # только для адресов fronend и backend
+    port      = -1                            # все номера портов
   }
 }
 ```
