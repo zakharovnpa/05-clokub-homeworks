@@ -103,11 +103,22 @@ resource "yandex_storage_bucket" "test" {
 2. Создать группу ВМ в public подсети фиксированного размера с шаблоном LAMP и web-страничкой, содержащей ссылку на картинку из bucket:
 - Создать Instance Group с 3 ВМ и шаблоном LAMP. Для LAMP рекомендуется использовать `image_id = fd827b91d99psvq5fjit`;
 - Для создания стартовой веб-страницы рекомендуется использовать раздел `user_data` в [meta_data](https://cloud.yandex.ru/docs/compute/concepts/vm-metadata); > Пояснение: раздел должен быть `user-data`
+- 02:02:30 - про группу ВМ в лекции
 - Разместить в стартовой веб-странице шаблонной ВМ ссылку на картинку из bucket;
 - Настроить проверку состояния ВМ. > Пояснение: настроить halthcheck
 
 Ответ: 
-- Создаем Instance Group с 3 ВМ и шаблоном LAMP. 
+- Создаем Instance Group с 3 ВМ и шаблоном LAMP. В лекции группа называется Target group - 02:04:15
+- Порядок создания:
+  - таргет груп
+  - балансировщик
+  - обработчик (листенер)
+  - helth check
+
+- Про автоскейлинг групп - 02:14:10, 
+  - про подключение шаблоа для создания групп ВМ, 
+  - про интеграцию с Network balancer или Application balancer
+
   - [yandex_compute_instance_group](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/compute_instance_group)
 
 ```tf
@@ -177,8 +188,9 @@ resource "yandex_compute_instance_group" "group1" {
 
 
 3. Подключить группу к сетевому балансировщику:
-- Создать сетевой балансировщик;
+- Создать сетевой балансировщик; -02:02:30
 - Проверить работоспособность, удалив одну или несколько ВМ.
+
 
 Ответ:
 
@@ -195,6 +207,12 @@ resource "yandex_compute_instance_group" "group1" {
 
 > Пояснение: как вывести в  output ip сетевого балансировщика
 - Пример из заключительной лекции по задачам курса на - 00:12:50. Вывод показан там же.
+
+В лекции:
+- 02:09:00 - создание группы ВМ backend
+- создание http роуиера
+
+
 ```tf
 output "external_ip_address_nlb" {
     value = yandex_lb_network_load_balancer.my-network-load-balancer.listener.*.external_address.spec
