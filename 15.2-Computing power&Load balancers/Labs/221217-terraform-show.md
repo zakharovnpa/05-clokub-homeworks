@@ -288,3 +288,46 @@ resource "yandex_vpc_subnet" "subnet_pub" {
 }
 
 ```
+## yc vpc security-group list
+```
++----------------------+--------------------------------+----------------------+----------------------+
+|          ID          |              NAME              |     DESCRIPTION      |      NETWORK-ID      |
++----------------------+--------------------------------+----------------------+----------------------+
+| enpd42o6ckuec9i9olc6 | Security group for             | Traffic instance NAT | enpmj3h4t3jvnjmjla2j |
+|                      | NAt-instance                   |                      |                      |
++----------------------+--------------------------------+----------------------+----------------------+
+
+```
+## yc vpc security-group show
+```tf
+id: enpd42o6ckuec9i9olc6
+folder_id: b1gd3hm4niaifoa8dahm
+created_at: "2022-12-17T02:30:51Z"
+name: Security group for NAt-instance
+description: Traffic instance NAT
+labels:
+  my-label: my-label-value
+network_id: enpmj3h4t3jvnjmjla2j
+status: ACTIVE
+rules:
+- id: enpjbkrv8u69t62ppf6v
+  description: from natgw to frontend and backup
+  direction: EGRESS
+  protocol_name: ANY
+  protocol_number: "-1"
+  cidr_blocks:
+    v4_cidr_blocks:
+    - 192.168.10.0/24
+    - 192.168.20.0/24
+- id: enpp2pkso05p1vki5dt2
+  description: from frontend and backup to natgw
+  direction: INGRESS
+  protocol_name: ANY
+  protocol_number: "-1"
+  cidr_blocks:
+    v4_cidr_blocks:
+    - 192.168.10.0/24
+    - 192.168.20.0/24
+
+
+```
