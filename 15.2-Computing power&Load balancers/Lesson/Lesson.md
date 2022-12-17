@@ -171,6 +171,7 @@ resource "yandex_compute_instance_group" "group1" {
 ```
 - Размещаем в стартовой веб-странице шаблонной ВМ ссылку на картинку из bucket
   - неизвестно как
+  - сделать статический хостинг [Static Website Hosting](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket#static-website-hosting)
 
 - Настраиваем проверку состояния ВМ (настроить halthcheck)
 
