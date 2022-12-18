@@ -14,7 +14,7 @@
 - Создать пустую VPC. Выбрать зону.
 
 Ответ: Создана VPC. Выбираем зону `ru-central1-a`
-* Экспорт переменных для подключения terraformк облаку
+* Экспорт переменных для подключения terraform к облаку
 ```sh
 export YC_TOKEN=$(yc iam create-token)
 export YC_CLOUD_ID=$(yc config get cloud-id)
