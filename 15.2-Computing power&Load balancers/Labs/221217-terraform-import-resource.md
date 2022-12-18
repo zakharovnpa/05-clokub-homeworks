@@ -166,3 +166,12 @@ resource "yandex_compute_instance" "zah-157" {
 
 ```
   - Копируем содержимое в файл с новым ресурсом `zah-157.tf`
+
+- Для удаления ресурса из state выполнить `terraform state rm <resourse.name>`
+
+```tf
+root@PC-Ubuntu:~/learning-terraform/yandex-cloud/netology/clokub-terraform# terraform state rm yandex_iam_service_account.netology-serjent
+Removed yandex_iam_service_account.netology-serjent
+Successfully removed 1 resource instance(s).
+
+```
