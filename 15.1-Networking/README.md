@@ -14,6 +14,12 @@
 - Создать пустую VPC. Выбрать зону.
 
 Ответ: Создана VPC. Выбираем зону `ru-central1-a`
+* Экспорт переменных для подключения terraformк облаку
+```sh
+export YC_TOKEN=$(yc iam create-token)
+export YC_CLOUD_ID=$(yc config get cloud-id)
+export YC_FOLDER_ID=$(yc config get folder-id)
+```
 * Основная конфигурация
 ```tf
 terraform {
@@ -25,26 +31,16 @@ terraform {
 }
 
 provider "yandex" {
-  service_account_key_file = "key.json"
-  cloud_id  = var.yandex_cloud_id
-  folder_id = var.yandex_folder_id
+/*
+  service_account_key_file = "key.json" # не используется
+  cloud_id  = var.yandex_cloud_id       # не используется
+  folder_id = var.yandex_folder_id      # не используется
+*/  
   zone      = "ru-central1-a"
 }
 
 resource "yandex_vpc_network" "default" {
   name = "net"
-}
-```
-- Переменные для создания VPC
-```tf
-# ID облака
-variable "yandex_cloud_id" {
-  default = "$YC_CLOUD_ID"
-}
-
-# ID Folder облака
-variable "yandex_folder_id" {
-  default = "b1gd3hm4niaifoa8dahm"
 }
 ```
 - Переменные с ID образа ОС для создания виртуалок
