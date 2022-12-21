@@ -169,6 +169,139 @@ EOF
 
 > Подключенная целевая группа — это группа целевых ресурсов, подключенная к сетевому балансировщику. Целевую группу можно подключить к нескольким балансировщикам. При этом целевую группу нельзя подключать к портам с одинаковым номером на разных балансировщиках. Например, если группа подключена к одному балансировщику на порту 8080, то к другому балансировщику ее нужно подключить на порту 8081.
 После подключения целевой группы балансировщик начнет проверять состояние целевых ресурсов и сможет распределять нагрузку между ними.
+- [Создать целевую группу Network Load Balancer](https://cloud.yandex.ru/docs/network-load-balancer/operations/target-group-create?from=int-console-empty-state)
+  - Пример структуры конфигурационного файла:
+```tf
+provider "yandex" {
+  token     = "<OAuth>"
+  cloud_id  = "<идентификатор облака>"
+  folder_id = "<идентификатор каталога>"
+  zone      = "ru-central1-a"
+}
+
+resource "yandex_lb_target_group" "foo" {
+  name      = "my-target-group"
+
+  target {
+    subnet_id = "<идентификатор подсети>"
+    address   = "<внутренний IP-адрес ресурса>"
+  }
+
+  target {
+    subnet_id = "<идентификатор подсети>"
+    address   = "<внутренний IP-адрес ресурса 2>"
+  }
+
+}
+
+```
+
+
+
+
+- [Концепции Instance Groups](https://cloud.yandex.ru/docs/compute/concepts/instance-groups/?from=int-console-empty-state)
+- 
+> Instance Groups — компонент сервиса Compute Cloud, который позволяет создавать группы виртуальных машин и управлять ими.
+Instance Groups автоматически идентифицирует и корректирует неработоспособные виртуальные машины в группе для обеспечения их оптимальной работы. Каждая группа состоит из одной или нескольких однотипных виртуальных машин. Виртуальные машины группы могут находиться в разных зонах и регионах доступности. 
+
+- С помощью Instance Groups вы можете:
+  - Одновременно обновлять все виртуальные машины в группе.
+  - Интегрироваться с сервисами [Yandex Network Load Balancer](https://cloud.yandex.ru/docs/network-load-balancer/concepts/) и [Yandex Application Load Balancer](https://cloud.yandex.ru/docs/application-load-balancer/concepts/) и равномерно распределять нагрузку между виртуальными машинами.
+  - Создавать [автоматически масштабируемые группы](https://cloud.yandex.ru/docs/compute/concepts/instance-groups/scale#auto-scale) виртуальных машин.
+  - Автоматически [восстанавливать](https://cloud.yandex.ru/docs/compute/concepts/instance-groups/autohealing) виртуальные машины в случае сбоя приложения.
+  - Поддерживать работу служб приложений в надежной среде с многозональными функциями вместо выделения ресурсов для каждой зоны.
+
+- При создании группы необходимо описать:
+  - [Шаблон](https://cloud.yandex.ru/docs/compute/concepts/instance-groups/instance-template), по которому будут развертываться виртуальные машины группы.
+  - [Политики масштабирования](https://cloud.yandex.ru/docs/compute/concepts/instance-groups/policies/), развертывания и распределения.
+  - Созданная в каталоге группа ВМ доступна по сети для всех виртуальных машин, подключенных к этой же облачной сети.
+  - [Подробнее о работе сети.](https://cloud.yandex.ru/docs/vpc/)
+
+- [Создать автоматически масштабируемую группу виртуальных машин](https://cloud.yandex.ru/docs/compute/operations/instance-groups/create-autoscaled-group)
+> Вы можете создать автоматически масштабируемую группу однотипных виртуальных машин. Управление размером такой группой будет осуществляться автоматически. Подробнее читайте в разделе [Группы с автоматическим масштабированием](https://cloud.yandex.ru/docs/compute/concepts/instance-groups/scale#auto-scale).
+
+> Внимание! Создавая группы ВМ, учитывайте лимиты. Чтобы не нарушить работу компонента Instance Groups, не изменяйте и не удаляйте вручную созданные им ресурсы: [целевую группу ](https://cloud.yandex.ru/docs/network-load-balancer/concepts/target-resources)Network Load Balancer, ВМ и диски. Вместо этого измените или удалите группу полностью.
+- Чтобы создать автоматически масштабируемую группу виртуальных машин jпишите в конфигурационном файле параметры ресурсов, которые необходимо создать:
+* Пример `yandex_compute_instance_group.tf`
+```tf
+resource "yandex_iam_service_account" "ig-sa" {
+  name        = "ig-sa"
+  description = "service account to manage IG"
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "editor" {
+  folder_id = "<идентификатор каталога>"
+  role      = "editor"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.ig-sa.id}",
+  ]
+}
+
+resource "yandex_compute_instance_group" "ig-1" {
+  name               = "autoscaled-ig"
+  folder_id          = "<идентификатор каталога>"
+  service_account_id = "${yandex_iam_service_account.ig-sa.id}"
+  instance_template {
+    platform_id = "standard-v3"
+    resources {
+      memory = <объем RAM в ГБ>
+      cores  = <количество ядер vCPU>
+    }
+
+    boot_disk {
+      mode = "READ_WRITE"
+      initialize_params {
+        image_id = "<идентификатор образа>"
+      }
+    }
+
+    network_interface {
+      network_id = "${yandex_vpc_network.network-1.id}"
+      subnet_ids = ["${yandex_vpc_subnet.subnet-1.id}"]
+    }
+
+    metadata = {
+      ssh-keys = "<имя пользователя>:<содержимое SSH-ключа>"
+    }
+  }
+
+  scale_policy {
+    auto_scale {
+      initial_size           = 3
+      measurement_duration   = 60
+      cpu_utilization_target = 75
+      min_zone_size          = 3
+      max_size               = 15
+      warmup_duration        = 60
+      stabilization_duration = 120
+    }
+  }
+
+  allocation_policy {
+    zones = ["ru-central1-a"]
+  }
+
+  deploy_policy {
+    max_unavailable = 1
+    max_expansion   = 0
+  }
+}
+
+resource "yandex_vpc_network" "network-1" {
+  name = "network1"
+}
+
+resource "yandex_vpc_subnet" "subnet-1" {
+  name           = "subnet1"
+  zone           = "ru-central1-a"
+  network_id     = "${yandex_vpc_network.network-1.id}"
+  v4_cidr_blocks = ["192.168.10.0/24"]
+}
+
+
+```
+
+
 
 * Autoscaling
 > [Работа с группой виртуальных машин с автоматическим масштабированием](https://cloud.yandex.ru/docs/tutorials/infrastructure-management/vm-autoscale)
@@ -252,7 +385,12 @@ resource "yandex_compute_instance_group" "group1" {
 
 Ответ:
 > [Yandex Network Load Balancer](https://cloud.yandex.ru/docs/network-load-balancer/) — сервис, который помогает обеспечить отказоустойчивость приложений за счет равномерного распределения сетевой нагрузки по облачным ресурсам. 
+- [Как начать работать с Network Load Balancer](https://cloud.yandex.ru/docs/network-load-balancer/quickstart?from=int-console-empty-state)
+> Сетевые балансировщики равномерно распределяют нагрузку по облачным ресурсам и отслеживают их состояние. Это позволяет повысить доступность и отказоустойчивость ваших приложений и облачной сетевой инфраструктуры.
 
+> Создайте сетевой балансировщик с [обработчиком](https://cloud.yandex.ru/docs/network-load-balancer/concepts/listener), подключите к нему [группу целевых ресурсов](https://cloud.yandex.ru/docs/network-load-balancer/concepts/target-resources) и настройте [проверку их состояния](https://cloud.yandex.ru/docs/network-load-balancer/concepts/health-check) с помощью сервиса Network Load Balancer.
+
+- [Пошаговые инструкции для Network Load Balancer](https://cloud.yandex.ru/docs/network-load-balancer/operations/)
 
 - Создаем сетевой балансировщик;
 - [yandex_lb_network_load_balancer](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/lb_network_load_balancer)
@@ -279,6 +417,62 @@ resource "yandex_lb_network_load_balancer" "foo" {
         port = 8080
         path = "/ping"
       }
+    }
+  }
+}
+```
+* Пример 2
+```tf
+
+resource "yandex_lb_network_load_balancer" "foo" {
+  name = "<имя сетевого балансировщика>"
+  listener {
+    name = "<имя обработчика>"
+    port = <номер порта>
+    external_address_spec {
+      ip_version = "ipv4"
+    }
+  }
+  attached_target_group {
+    target_group_id = "<идентификатор целевой группы>"
+    healthcheck {
+      name = "<имя проверки состояния>"
+        http_options {
+          port = <номер порта>
+          path = "/ping"
+        }
+    }
+  }
+}
+```
+
+
+
+- [Проверка состояния ресурсов](https://cloud.yandex.ru/docs/network-load-balancer/concepts/health-check) 
+- [Группы безопасности](https://cloud.yandex.ru/docs/vpc/concepts/security-groups)
+  - [Добавить новое правило](https://cloud.yandex.ru/docs/vpc/operations/security-group-add-rule)
+  - [Добавить новое правило с помощью ресурса yandex_vpc_security_group_rule](https://cloud.yandex.ru/docs/vpc/operations/security-group-add-rule#add-rule-with-yandex-vpc-security-group-rule)
+
+- [Добавить обработчик к сетевому балансировщику](https://cloud.yandex.ru/docs/network-load-balancer/operations/listener-add)
+* добавьте блок listener в описании сетевого балансировщика:
+```tf
+resource "yandex_lb_network_load_balancer" "foo" {
+  name = "my-network-load-balancer"
+  listener {
+    name = "my-listener"
+    port = 9000
+    external_address_spec {
+      ip_version = "ipv4"
+    }
+  }
+  attached_target_group {
+    target_group_id = "${yandex_lb_target_group.my-target-group.id}"
+    healthcheck {
+      name = "http"
+        http_options {
+          port = 9000
+          path = "/ping"
+        }
     }
   }
 }
