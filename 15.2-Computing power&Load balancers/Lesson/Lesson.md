@@ -95,7 +95,7 @@ resource "yandex_storage_object" "vint-av-72" {
 }
 ```
 
-
+> При terraform destroy  терраформ не удаляет бакет, т.к. не удаляет объект а нем.
 
 
 - Необязательное: Шифрование файла [Using SSE](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket)
@@ -161,6 +161,19 @@ EOF
 - Настроить проверку состояния ВМ. > Пояснение: настроить halthcheck
 
 Ответ: 
+> Создайте целевую группу. [Целевая группа](https://cloud.yandex.ru/docs/network-load-balancer/concepts/target-resources) объединяет облачные ресурсы, по которым сетевой балансировщик будет распределять трафик.
+> Сетевой балансировщик распределяет нагрузку между облачными ресурсами, объединенными в целевые группы.
+
+> Целевой ресурс определяется двумя параметрами: идентификатором подсети и внутренним IP-адресом ресурса. Целевые ресурсы одной группы должны находиться в одной облачной сети. В пределах одной зоны доступности все целевые ресурсы должны быть подключены к одной подсети. Максимальное количество ресурсов в целевой группе — 254.
+Целевые ресурсы должны принимать трафик на порту с тем же номером, что указан в конфигурации обработчика.
+
+> Подключенная целевая группа — это группа целевых ресурсов, подключенная к сетевому балансировщику. Целевую группу можно подключить к нескольким балансировщикам. При этом целевую группу нельзя подключать к портам с одинаковым номером на разных балансировщиках. Например, если группа подключена к одному балансировщику на порту 8080, то к другому балансировщику ее нужно подключить на порту 8081.
+После подключения целевой группы балансировщик начнет проверять состояние целевых ресурсов и сможет распределять нагрузку между ними.
+
+* Autoscaling
+> [Работа с группой виртуальных машин с автоматическим масштабированием](https://cloud.yandex.ru/docs/tutorials/infrastructure-management/vm-autoscale)
+
+
 - Создаем Instance Group с 3 ВМ и шаблоном LAMP. 
   - [yandex_compute_instance_group](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/compute_instance_group)
 
@@ -238,9 +251,38 @@ resource "yandex_compute_instance_group" "group1" {
 - Проверить работоспособность, удалив одну или несколько ВМ.
 
 Ответ:
+> [Yandex Network Load Balancer](https://cloud.yandex.ru/docs/network-load-balancer/) — сервис, который помогает обеспечить отказоустойчивость приложений за счет равномерного распределения сетевой нагрузки по облачным ресурсам. 
+
 
 - Создаем сетевой балансировщик;
 - [yandex_lb_network_load_balancer](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/lb_network_load_balancer)
+
+* Пример:
+```tf
+resource "yandex_lb_network_load_balancer" "foo" {
+  name = "my-network-load-balancer"
+
+  listener {
+    name = "my-listener"
+    port = 8080
+    external_address_spec {
+      ip_version = "ipv4"
+    }
+  }
+
+  attached_target_group {
+    target_group_id = "${yandex_lb_target_group.my-target-group.id}"
+
+    healthcheck {
+      name = "http"
+      http_options {
+        port = 8080
+        path = "/ping"
+      }
+    }
+  }
+}
+```
 
 - Проверяем работоспособность, удалив одну или несколько ВМ.
 
