@@ -12,15 +12,9 @@
 ```
 root@PC-Ubuntu:~/learning-terraform/yandex-cloud/netology/clokub-terraform#
 ```
-- Черновые директории для подготовительных и тестовых работ:
+- Черновая директория для подготовительных и тестовых работ:
 ```
-├── Alfa
-├── Betta
-├── Delta
-├── Gamma
-├── Oskar
-└── Yotta
-
+root@PC-Ubuntu:~/learning-terraform/yandex-cloud/Epsilon#
 ```
 
 1. Создать bucket Object Storage и разместить там файл с картинкой:
@@ -29,47 +23,30 @@ root@PC-Ubuntu:~/learning-terraform/yandex-cloud/netology/clokub-terraform#
 - Сделать файл доступным из Интернет.
 
 Ответ:
-- Создаем bucket в Object Storage с произвольным именем (например, zakharov_221216);
+- Создаем bucket в Object Storage с произвольным именем (например, zakharovnpa_221218);
 - Ресурсы:
-  - [yandex_storage_bucket](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket)
-  - [Bucket Default Storage Class](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket#bucket-default-storage-class)
+  - [yandex_iam_service_account_static_access_key](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/iam_service_account_static_access_key)
+* Пример: Этот фрагмент кода создает статический ключ доступа к сервисному аккаунту.
 ```tf
-resource "yandex_storage_bucket" "backet" {
-  bucket = "my-policy-bucket"
-
-  default_storage_class = "STANDARD"
+resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
+  service_account_id = "some_sa_id"
+  description        = "static access key for object storage"
+  pgp_key            = "keybase:keybaseusername"
 }
 ```
-  - [Simple Private Bucket](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket#simple-private-bucket)
+* Рабочий код:
 ```tf
-locals {
-  folder_id = "<folder-id>"
-}
-
-provider "yandex" {
-  folder_id = local.folder_id
-  zone      = "ru-central1-a"
-}
-
-// Create SA
-resource "yandex_iam_service_account" "sa" {
-  folder_id = local.folder_id
-  name      = "tf-test-sa"
-}
-
-// Grant permissions
-resource "yandex_resourcemanager_folder_iam_member" "sa-editor" {
-  folder_id = local.folder_id
-  role      = "storage.editor"
-  member    = "serviceAccount:${yandex_iam_service_account.sa.id}"
-}
-
 // Create Static Access Keys
 resource "yandex_iam_service_account_static_access_key" "sa-static-key" {
-  service_account_id = yandex_iam_service_account.sa.id
+#  service_account_id = yandex_iam_service_account.netology-serjent.id
+  service_account_id = "aj.................bp"
   description        = "static access key for object storage"
 }
+```
 
+  - [yandex_storage_bucket](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket)
+* Пример. 
+```tf
 // Use keys to create bucket
 resource "yandex_storage_bucket" "test" {
   access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
@@ -77,7 +54,25 @@ resource "yandex_storage_bucket" "test" {
   bucket = "tf-test-bucket"
 }
 ```
+* Рабочий код:
+```tf
+// Use keys to create bucket
+resource "yandex_storage_bucket" "zakharovnpa-221218" {
+  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
+  bucket = "zakharovnpa-221218"
+  default_storage_class = "STANDARD"
+  max_size = 1073741824     # 1Gb
+}
+
+```
+
+  - [Bucket Default Storage Class](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket#bucket-default-storage-class)
+
+  - [Simple Private Bucket](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket#simple-private-bucket)
+
 - Загрузим в bucket файл с картинкой;
+* Пример
 ```tf
 resource "yandex_storage_object" "cute-cat-picture" {
   bucket = "cat-pictures"
@@ -85,8 +80,26 @@ resource "yandex_storage_object" "cute-cat-picture" {
   source = "/images/cats/cute-cat.jpg"
 }
 ```
-- Шифрование файла [Using SSE](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket)
+- Ресурсы:
+  - [yandex_storage_object](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_object)
 
+* yandex_storage_object.tf Рабочий код
+```tf
+# yandex_storage_object
+resource "yandex_storage_object" "vint-av-72" {
+  access_key = yandex_iam_service_account_static_access_key.sa-static-key.access_key
+  secret_key = yandex_iam_service_account_static_access_key.sa-static-key.secret_key
+  bucket = "zakharovnpa-221218"
+  key    = "vint-av-72"
+  source = "/root/learning-terraform/yandex-cloud/netology/clokub-terraform/Images/vint-av-72-8.png"
+}
+```
+
+
+
+
+- Необязательное: Шифрование файла [Using SSE](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket)
+* Пример
 ```tf
 resource "yandex_kms_symmetric_key" "key-a" {
   name              = "example-symetric-key"
@@ -111,9 +124,35 @@ resource "yandex_storage_bucket" "test" {
 
 - Сделать файл доступным из Интернет.
   - открыть доступ по ссылке, которую создаст 
+  - настроить хостинг. Ресурс [Static Website Hosting](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket#static-website-hosting)
+* Пример
+```tf
+resource "yandex_storage_bucket" "test" {
+  bucket = "storage-website-test.hashicorp.com"
+  acl    = "public-read"
+
+  website {
+    index_document = "index.html"
+    error_document = "error.html"
+    routing_rules = <<EOF
+[{
+    "Condition": {
+        "KeyPrefixEquals": "docs/"
+    },
+    "Redirect": {
+        "ReplaceKeyPrefixWith": "documents/"
+    }
+}]
+EOF
+  }
+
+}
+```
 
 
-  - [yandex_storage_object](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_object)
+
+
+
 
 2. Создать группу ВМ в public подсети фиксированного размера с шаблоном LAMP и web-страничкой, содержащей ссылку на картинку из bucket:
 - Создать Instance Group с 3 ВМ и шаблоном LAMP. Для LAMP рекомендуется использовать `image_id = fd827b91d99psvq5fjit`;
@@ -184,6 +223,9 @@ resource "yandex_compute_instance_group" "group1" {
   }
 }
 ```
+- [yandex_lb_target_group](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/lb_target_group)
+
+
 - Размещаем в стартовой веб-странице шаблонной ВМ ссылку на картинку из bucket
   - неизвестно как
   - сделать статический хостинг [Static Website Hosting](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/storage_bucket#static-website-hosting)
@@ -198,7 +240,7 @@ resource "yandex_compute_instance_group" "group1" {
 Ответ:
 
 - Создаем сетевой балансировщик;
-
+- [yandex_lb_network_load_balancer](https://registry.tfpla.net/providers/yandex-cloud/yandex/latest/docs/resources/lb_network_load_balancer)
 
 - Проверяем работоспособность, удалив одну или несколько ВМ.
 
