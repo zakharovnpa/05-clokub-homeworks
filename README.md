@@ -7,7 +7,7 @@
 
 <details>
   <summary> "Используемые инструменты"</summary>
-Terraform, Yandex.Cloud, AWS
+Terraform, Yandex.Cloud, AWS, k8s для тестовых задач - https://killercoda.com/playgrounds/scenario/kubernetes
 </details>
 
 14.2 [Синхронизация секретов с внешними сервисами. Vault](https://github.com/zakharovnpa/05-clokub-homeworks/tree/main/14.2-Synchronization-services)
