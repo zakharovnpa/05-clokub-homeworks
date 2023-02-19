@@ -845,4 +845,17 @@ controlplane $
 controlplane $ kubectl logs security-context-demo
 controlplane $ 
 controlplane $ 
+controlplane $ kubectl delete pod security-context-demo 
+pod "security-context-demo" deleted
+controlplane $ 
+controlplane $ kubectl apply -f example-security-context.yml 
+pod/security-context-demo created
+controlplane $ 
+controlplane $ kubectl get pod
+NAME                    READY   STATUS    RESTARTS   AGE
+security-context-demo   1/1     Running   0          9s
+controlplane $ 
+controlplane $ kubectl exec security-context-demo -- id
+uid=1000 gid=3000 groups=3000
+controlplane $ 
 ```
