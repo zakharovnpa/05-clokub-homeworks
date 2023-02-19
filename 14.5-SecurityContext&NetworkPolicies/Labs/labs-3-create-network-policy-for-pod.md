@@ -51,4 +51,4 @@ spec:
 1. Создаем два неймспейс - "type-a" и "type-b"
 2. В каждом NS создаем по 1 поду
 
-![legend-network-policy]()
+![legend-network-policy](/14.5-SecurityContext&NetworkPolicies/Files/legend-network-policy.png)
