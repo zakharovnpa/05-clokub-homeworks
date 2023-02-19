@@ -830,3 +830,19 @@ uid=0(root) gid=0(root) groups=0(root)
 controlplane $ 
 controlplane $ 
 ```
+```tf
+controlplane $ 
+controlplane $ kubectl logs pods/security-context-demo                
+controlplane $ 
+controlplane $ kubectl logs security-context-demo
+controlplane $ 
+controlplane $ id
+uid=0(root) gid=0(root) groups=0(root)
+controlplane $ 
+controlplane $ kubectl exec security-context-demo -- id
+uid=1000 gid=3000 groups=3000
+controlplane $ 
+controlplane $ kubectl logs security-context-demo
+controlplane $ 
+controlplane $ 
+```
