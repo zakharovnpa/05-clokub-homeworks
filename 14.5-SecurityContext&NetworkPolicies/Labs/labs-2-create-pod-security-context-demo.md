@@ -1,4 +1,4 @@
-### ДР по ДЗ 14.5 Security Context
+### ЛР по ДЗ 14.5 Security Context
 
 - Среда для запуска K8S - сайт [killercoda.com](https://killercoda.com/playgrounds/scenario/kubernetes). Авторизация через УЗ GitHub.
 
