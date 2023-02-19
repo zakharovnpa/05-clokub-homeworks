@@ -859,3 +859,4 @@ controlplane $ kubectl exec security-context-demo -- id
 uid=1000 gid=3000 groups=3000
 controlplane $ 
 ```
+![kubectl-exec-security-context-demo--id](/14.5-SecurityContext&NetworkPolicies/Files/kubectl-exec-security-context-demo--id.png)
