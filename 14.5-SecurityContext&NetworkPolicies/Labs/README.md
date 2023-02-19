@@ -1,7 +1,7 @@
 ## Лабораторные работы
 
 - [ЛР-1. Создание стартового скрипта для разверачивания рабочей среды](/14.5-SecurityContext&NetworkPolicies/Labs/labs-1-create-start-script.md)
-- Среда для запуска K8S - сайт [killercoda.com](https://killercoda.com/playgrounds/scenario/kubernetes). Автоизация через УЗ GitHub
+- Среда для запуска K8S - сайт [killercoda.com](https://killercoda.com/playgrounds/scenario/kubernetes). Авторизация через УЗ GitHub.
 
 ```
 date && \
