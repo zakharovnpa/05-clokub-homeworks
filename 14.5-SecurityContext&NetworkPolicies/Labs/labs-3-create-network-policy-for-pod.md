@@ -46,3 +46,9 @@ spec:
 
 
 - Среда для запуска K8S - сайт [killercoda.com](https://killercoda.com/playgrounds/scenario/kubernetes). Авторизация через УЗ GitHub.
+
+### Ход решения:
+1. Создаем два неймспейс - "type-a" и "type-b"
+2. В каждом NS создаем по 1 поду
+
+![legend-network-policy]()
