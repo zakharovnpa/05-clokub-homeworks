@@ -17,8 +17,8 @@ spec:
   containers:
   - name: sec-ctx-demo
     image: fedora:latest
+    command: [ "sh", "-c", "sleep 1h" ]
     command: [ "id" ]
-    # command: [ "sh", "-c", "sleep 1h" ]
     securityContext:
       runAsUser: 1000
       runAsGroup: 3000
