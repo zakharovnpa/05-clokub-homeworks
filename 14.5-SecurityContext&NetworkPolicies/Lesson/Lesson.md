@@ -141,8 +141,9 @@ spec:
       runAsGroup: 3000
 
 Fri Aug 12 07:47:30 UTC 2022
-controlplane $ 
-controlplane $ 
+```
+- Выполняем ДЗ.
+```
 controlplane $ kubectl apply -f example-security-context.yml
 pod/security-context-demo created
 controlplane $ 
