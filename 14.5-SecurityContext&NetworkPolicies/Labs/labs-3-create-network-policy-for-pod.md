@@ -126,14 +126,14 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: ta  
-  namespace: type-a
+  namespace: default
 spec:
   containers:
   - image: busybox
     name: busybox
     args:
       - sleep
-      - "3600"
+      - \"3600\"
  #   securityContext:
  #    privileged: true
 " > ta.yml && \
@@ -143,14 +143,14 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: tb
-  namespace: type-b
+  namespace: default
 spec:
   containers:
   - image: busybox
     name: busybox
     args:
       - sleep
-      - "3600"
+      - \"3600\"
  #   securityContext:
  #    privileged: true
 " > tb.yml && \
@@ -190,13 +190,1028 @@ spec:
     ports:
     - protocol: TCP
       port: 5978
-" > example-network-policy.yml
+" > example-network-policy.yml && \
+echo "
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ta 
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: tb 
+  policyTypes:  
+    - Ingress  
+" > np-ta.yml && \
+echo "
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tb
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: ta 
+  policyTypes:  
+    - Ingress  
+" > np-tb.yml && \
+sleep 2 && \
+cat ta.yml && \
+sleep 2 && \
+cat tb.yml && \
+sleep 2 && \
+cat example-network-policy.yml && \
+sleep 2 && \
+cat np-ta.yml && \
+sleep 2 && \
+cat np-tb.yml && \
+kubectl apply -f ta.yml && \
+kubectl apply -f tb.yml && \
+kubectl apply -f np-ta.yml && \
+kubectl apply -f np-tb.yml && \
+kubectl get pod && \
+kubectl get networkpolicy && \
+date
+
+
+```
+- Политики сетевого доступа
+* для
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend        # Название политики
+  namespace: default    # Используется только в namespace default
+spec:                   # Описание политики 
+  podSelector:          # По отношению к какому поду применяется политика
+    matchLabels:        # Условие - по совпадению Labels, указанного на следующей строке
+      app: frontend     # Условие для совпадения - название пода содержит слово frontend
+  policyTypes:          # Какой будет тип сетевой политики
+    - Ingress           # Входящий тип, т.е. контролруются входящие соединения
+
+```
+* для пода ta
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ta 
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: tb 
+  policyTypes:  
+    - Ingress  
+
+```
+* для пода tb
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tb
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: ta
+  policyTypes:  
+    - Ingress  
 
 ```
 
-3. 
+* для пода ta
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ta       # Имя политики
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: ta
+  policyTypes:
+    - Ingress
+  ingress:        # Для входящих соединений
+    - from:       # От (и далее описано что для frontend)
+      - podSelector:
+          matchLabels:
+            app: tb
+      ports:                  # Описание портов и протоколов
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
 
-- Logs
+```
+
+* для пода tb
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tb       # Имя политики
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: tb
+  policyTypes:
+    - Ingress
+  ingress:        # Для входящих соединений
+    - from:       # От (и далее описано что для frontend)
+      - podSelector:
+          matchLabels:
+            app: ta
+      ports:                  # Описание портов и протоколов
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+
+```
+
+3. Попытка ответа на вопрос
+
+##    Ответ:
+
+### Ход решения:
+
+1. Создам два модуля ta и tb.  
+* Под ta.yml
+```yml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ta  
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    name: busybox
+    args:
+      - sleep
+      - "3600"
+
+```
+* Под tb.yml
+```yml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tb  
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    name: busybox
+    args:
+      - sleep
+      - "3600"
+
+```
+
+
+2. Для первого модуля разрешаем доступ к внешнему миру и ко второму контейнеру, используя NetworkPolicy. 
+
+* Для пода ta политика np-ta.yml
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ta 
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: tb 
+  policyTypes:  
+    - Ingress  
+```
+*
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: np-ta 
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: ta 
+  policyTypes:  
+    - Egress 
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            app: tb
+```
+3. Для второго модуля разрешаем связь только с первым контейнером. 
+
+* Для пода tb политика np-tb.yml
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tb
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: ta
+  policyTypes:  
+    - Ingress  
+```
+* 
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: np-tb
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: tb
+  policyTypes:  
+    - Egress 
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            app: ta
+```
+
+4. Проверяем корректность настроек.
+
+
+
+### Компоненты
+
+- Скрипт
+```
+date && \
+mkdir -p My-Project && cd My-Project && \
+touch ta.yml tb.yml example-network-policy.yml
+echo "
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ta  
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    name: busybox
+    args:
+      - sleep
+      - \"3600\"
+ #   securityContext:
+ #    privileged: true
+" > ta.yml && \
+echo "
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tb
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    name: busybox
+    args:
+      - sleep
+      - \"3600\"
+ #   securityContext:
+ #    privileged: true
+" > tb.yml && \
+echo "
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 172.17.0.0/16
+        except:
+        - 172.17.1.0/24
+    - namespaceSelector:
+        matchLabels:
+          project: myproject
+    - podSelector:
+        matchLabels:
+          role: frontend
+    ports:
+    - protocol: TCP
+      port: 6379
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/24
+    ports:
+    - protocol: TCP
+      port: 5978
+" > example-network-policy.yml && \
+echo "
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ta 
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: tb 
+  policyTypes:  
+    - Ingress  
+" > np-ta.yml && \
+echo "
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tb
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: ta 
+  policyTypes:  
+    - Ingress  
+" > np-tb.yml && \
+sleep 2 && \
+cat ta.yml && \
+sleep 2 && \
+cat tb.yml && \
+sleep 2 && \
+cat example-network-policy.yml && \
+sleep 2 && \
+cat np-ta.yml && \
+sleep 2 && \
+cat np-tb.yml && \
+kubectl apply -f ta.yml && \
+kubectl apply -f tb.yml && \
+kubectl apply -f np-ta.yml && \
+kubectl apply -f np-tb.yml && \
+kubectl get pod && \
+kubectl get networkpolicy && \
+date
+
+
+```
+- Политики сетевого доступа
+* для
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frontend        # Название политики
+  namespace: default    # Используется только в namespace default
+spec:                   # Описание политики 
+  podSelector:          # По отношению к какому поду применяется политика
+    matchLabels:        # Условие - по совпадению Labels, указанного на следующей строке
+      app: frontend     # Условие для совпадения - название пода содержит слово frontend
+  policyTypes:          # Какой будет тип сетевой политики
+    - Ingress           # Входящий тип, т.е. контролруются входящие соединения
+
+```
+* для пода ta
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ta 
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: tb 
+  policyTypes:  
+    - Ingress  
+
+```
+* для пода tb
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tb
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: ta
+  policyTypes:  
+    - Ingress  
+
+```
+
+* для пода ta
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ta       # Имя политики
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: ta
+  policyTypes:
+    - Ingress
+  ingress:        # Для входящих соединений
+    - from:       # От (и далее описано что для frontend)
+      - podSelector:
+          matchLabels:
+            app: tb
+      ports:                  # Описание портов и протоколов
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+
+```
+
+* для пода tb
+```yml
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tb       # Имя политики
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      app: tb
+  policyTypes:
+    - Ingress
+  ingress:        # Для входящих соединений
+    - from:       # От (и далее описано что для frontend)
+      - podSelector:
+          matchLabels:
+            app: ta
+      ports:                  # Описание портов и протоколов
+        - protocol: TCP
+          port: 80
+        - protocol: TCP
+          port: 443
+
+```
+
+
+
+
+
+
+- Logs 2
+
+```
+ontrolplane $ date && \
+> mkdir -p My-Project && cd My-Project && \
+> touch ta.yml tb.yml example-network-policy.yml
+Mon Feb 20 16:46:53 UTC 2023
+controlplane $ echo "
+> ---
+> apiVersion: v1
+> kind: Pod
+> metadata:
+>   name: ta  
+>   namespace: default
+> spec:
+>   containers:
+>   - image: busybox
+>     name: busybox
+>     args:
+>       - sleep
+>       - \"3600\"
+>  #   securityContext:
+>  #    privileged: true
+> " > ta.yml && \
+> echo "
+> ---
+> apiVersion: v1
+> kind: Pod
+> metadata:
+>   name: tb
+>   namespace: default
+> spec:
+>   containers:
+>   - image: busybox
+>     name: busybox
+>     args:
+>       - sleep
+>       - \"3600\"
+>  #   securityContext:
+>  #    privileged: true
+> " > tb.yml && \
+> echo "
+> ---
+> apiVersion: networking.k8s.io/v1
+> kind: NetworkPolicy
+> metadata:
+>   name: test-network-policy
+>   namespace: default
+> spec:
+>   podSelector:
+>     matchLabels:
+>       role: db
+>   policyTypes:
+>   - Ingress
+>   - Egress
+>   ingress:
+>   - from:
+>     - ipBlock:
+>         cidr: 172.17.0.0/16
+>         except:
+>         - 172.17.1.0/24
+>     - namespaceSelector:
+>         matchLabels:
+>           project: myproject
+>     - podSelector:
+>         matchLabels:
+>           role: frontend
+>     ports:
+>     - protocol: TCP
+>       port: 6379
+>   egress:
+>   - to:
+>     - ipBlock:
+>         cidr: 10.0.0.0/24
+>     ports:
+>     - protocol: TCP
+>       port: 5978
+> " > example-network-policy.yml && \
+> echo "
+> ---
+> apiVersion: networking.k8s.io/v1
+> kind: NetworkPolicy
+> metadata:
+>   name: ta 
+>   namespace: default
+> spec:                  
+>   podSelector:         
+>     matchLabels:     
+>       app: tb 
+>   policyTypes:  
+>     - Ingress  
+> " > np-ta.yml && \
+> echo "
+> ---
+> apiVersion: networking.k8s.io/v1
+> kind: NetworkPolicy
+> metadata:
+>   name: tb
+>   namespace: default
+> spec:                  
+>   podSelector:         
+>     matchLabels:     
+>       app: ta 
+>   policyTypes:  
+>     - Ingress  
+> " > np-tb.yml && \
+> sleep 2 && \
+> cat ta.yml && \
+> sleep 2 && \
+> cat tb.yml && \
+> sleep 2 && \
+> cat example-network-policy.yml && \
+> sleep 2 && \
+> cat np-ta.yml && \
+> sleep 2 && \
+> cat np-tb.yml && \
+> kubectl apply -f ta.yml && \
+> kubectl apply -f tb.yml && \
+> kubectl apply -f np-ta.yml && \
+> kubectl apply -f np-tb.yml && \
+> kubectl get pod && \
+> kubectl get networkpolicy && \
+> date
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ta  
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    name: busybox
+    args:
+      - sleep
+      - "3600"
+ #   securityContext:
+ #    privileged: true
+
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tb
+  namespace: default
+spec:
+  containers:
+  - image: busybox
+    name: busybox
+    args:
+      - sleep
+      - "3600"
+ #   securityContext:
+ #    privileged: true
+
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 172.17.0.0/16
+        except:
+        - 172.17.1.0/24
+    - namespaceSelector:
+        matchLabels:
+          project: myproject
+    - podSelector:
+        matchLabels:
+          role: frontend
+    ports:
+    - protocol: TCP
+      port: 6379
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/24
+    ports:
+    - protocol: TCP
+      port: 5978
+
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ta 
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: tb 
+  policyTypes:  
+    - Ingress  
+
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tb
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: ta 
+  policyTypes:  
+    - Ingress  
+
+pod/ta created
+pod/tb created
+networkpolicy.networking.k8s.io/ta created
+networkpolicy.networking.k8s.io/tb created
+NAME   READY   STATUS              RESTARTS   AGE
+ta     0/1     ContainerCreating   0          0s
+tb     0/1     ContainerCreating   0          0s
+NAME   POD-SELECTOR   AGE
+ta     app=tb         0s
+tb     app=ta         0s
+Mon Feb 20 16:47:04 UTC 2023
+controlplane $ 
+controlp
+controlplane $ kubectl ge po
+error: unknown command "ge" for "kubectl"
+
+Did you mean this?
+        set
+        get
+        cp
+controlplane $ kubectl get po
+NAME   READY   STATUS    RESTARTS   AGE
+ta     1/1     Running   0          20s
+tb     1/1     Running   0          20s
+controlplane $ 
+controlplane $ ping ta
+ping: ta: Name or service not known
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl exec ta -- ping 8.8.8.8
+PING 8.8.8.8 (8.8.8.8): 56 data bytes
+64 bytes from 8.8.8.8: seq=0 ttl=110 time=1.543 ms
+64 bytes from 8.8.8.8: seq=1 ttl=110 time=1.540 ms
+^C
+controlplane $ 
+controlplane $ kubectl exec ta -- ping ya.ru  
+PING ya.ru (77.88.55.242): 56 data bytes
+64 bytes from 77.88.55.242: seq=0 ttl=241 time=43.702 ms
+64 bytes from 77.88.55.242: seq=1 ttl=241 time=43.721 ms
+^C
+controlplane $ kubectl exec ta -- ping tb   
+ping: bad address 'tb'
+command terminated with exit code 1
+controlplane $ 
+controlplane $ ls -l
+total 20
+-rw-r--r-- 1 root root 608 Feb 20 16:46 example-network-policy.yml
+-rw-r--r-- 1 root root 220 Feb 20 16:46 np-ta.yml
+-rw-r--r-- 1 root root 219 Feb 20 16:46 np-tb.yml
+-rw-r--r-- 1 root root 216 Feb 20 16:46 ta.yml
+-rw-r--r-- 1 root root 214 Feb 20 16:46 tb.yml
+controlplane $ 
+controlplane $ cat np-ta.yml 
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ta 
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: tb 
+  policyTypes:  
+    - Ingress  
+
+controlplane $ 
+controlplane $ cat np-tb.yml 
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tb
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: ta 
+  policyTypes:  
+    - Ingress  
+
+controlplane $ 
+controlplane $ vi np-ta.yml 
+controlplane $ 
+controlplane $ vi np-tb.yml 
+controlplane $ 
+controlplane $ kubectl apply -f np-ta.yml 
+networkpolicy.networking.k8s.io/ta configured
+controlplane $ 
+controlplane $ kubectl apply -f np-tb.yml 
+networkpolicy.networking.k8s.io/tb configured
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl get networkpolicies.                  
+NAME   POD-SELECTOR   AGE
+ta     app=tb         8m19s
+tb     app=ta         8m19s
+controlplane $ 
+controlplane $ kubectl exec ta -- ping tb
+ping: bad address 'tb'
+command terminated with exit code 1
+controlplane $ 
+controlplane $ kubectl exec ta -- ping ta
+PING ta (192.168.1.3): 56 data bytes
+64 bytes from 192.168.1.3: seq=0 ttl=64 time=0.046 ms
+64 bytes from 192.168.1.3: seq=1 ttl=64 time=0.058 ms
+64 bytes from 192.168.1.3: seq=2 ttl=64 time=0.055 ms
+^C
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl delete networkpolicies   
+error: resource(s) were provided, but no name was specified
+controlplane $ 
+controlplane $ kubectl delete ta             
+error: the server doesn't have a resource type "ta"
+controlplane $ 
+controlplane $ kubectl delete np-ta
+error: the server doesn't have a resource type "np-ta"
+controlplane $ 
+controlplane $ kubectl delete networkpolicies ?
+Error from server (NotFound): networkpolicies.networking.k8s.io "?" not found
+controlplane $ 
+controlplane $ kubectl delete networkpolicies np-ta
+Error from server (NotFound): networkpolicies.networking.k8s.io "np-ta" not found
+controlplane $ 
+controlplane $ kubectl delete networkpolicies ta   
+networkpolicy.networking.k8s.io "ta" deleted
+controlplane $ 
+controlplane $ kubectl delete networkpolicies tb
+networkpolicy.networking.k8s.io "tb" deleted
+controlplane $ 
+controlplane $ kubectl exec ta -- ping tb
+ping: bad address 'tb'
+command terminated with exit code 1
+controlplane $ 
+controlplane $ kubectl exec ta -- ping ta
+PING ta (192.168.1.3): 56 data bytes
+64 bytes from 192.168.1.3: seq=0 ttl=64 time=0.059 ms
+64 bytes from 192.168.1.3: seq=1 ttl=64 time=0.065 ms
+^C
+controlplane $ 
+controlplane $ vi np-ta.yml 
+controlplane $ 
+controlplane $ vi np-tb.yml 
+controlplane $ 
+controlplane $ kubectl apply -f np-ta.yml 
+networkpolicy.networking.k8s.io/np-ta created
+controlplane $ 
+controlplane $ kubectl apply -f np-tb.yml 
+networkpolicy.networking.k8s.io/np-tb created
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl get networkpolicies.
+NAME    POD-SELECTOR   AGE
+np-ta   app=ta         18s
+np-tb   app=tb         14s
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl get networkpolicies np-ta
+NAME    POD-SELECTOR   AGE
+np-ta   app=ta         28s
+controlplane $ 
+controlplane $ kubectl describe networkpolicies np-ta
+Name:         np-ta
+Namespace:    default
+Created on:   2023-02-20 17:00:57 +0000 UTC
+Labels:       <none>
+Annotations:  <none>
+Spec:
+  PodSelector:     app=ta
+  Not affecting ingress traffic
+  Allowing egress traffic:
+    <none> (Selected pods are isolated for egress connectivity)
+  Policy Types: Egress
+controlplane $ 
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl exec ta -- ping tb
+ping: bad address 'tb'
+command terminated with exit code 1
+controlplane $ 
+controlplane $ kubectl exec ta -- ping ta
+PING ta (192.168.1.3): 56 data bytes
+64 bytes from 192.168.1.3: seq=0 ttl=64 time=0.059 ms
+64 bytes from 192.168.1.3: seq=1 ttl=64 time=0.127 ms
+^C
+controlplane $ 
+controlplane $ kubectl exec ta -- ping ya.ru
+PING ya.ru (77.88.55.242): 56 data bytes
+64 bytes from 77.88.55.242: seq=0 ttl=241 time=43.718 ms
+64 bytes from 77.88.55.242: seq=1 ttl=241 time=43.699 ms
+^C
+controlplane $ 
+controlplane $ 
+controlplane $ vi np-ta.yml 
+controlplane $ 
+controlplane $ cat np-ta.yml 
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: np-ta 
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: ta 
+  policyTypes:  
+    - Egress 
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            app: tb
+controlplane $ 
+controlplane $ vi np-tb.yml 
+controlplane $ 
+controlplane $ cat np-tb.yml 
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: np-tb
+  namespace: default
+spec:                  
+  podSelector:         
+    matchLabels:     
+      app: tb 
+  policyTypes:  
+    - Egress  
+    - Ingress
+  ingress: 
+    - from:
+      - podSelector:
+          matchLabels:
+            app: ta
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl apply -f np-ta.yml 
+networkpolicy.networking.k8s.io/np-ta configured
+controlplane $ 
+controlplane $ kubectl apply -f np-tb.yml 
+networkpolicy.networking.k8s.io/np-tb configured
+controlplane $ 
+controlplane $ 
+controlplane $ kubectl get networkpolicies.
+NAME    POD-SELECTOR   AGE
+np-ta   app=ta         8m23s
+np-tb   app=tb         8m19s
+controlplane $ 
+controlplane $ kubectl exec ta -- ping ya.ru
+PING ya.ru (5.255.255.242): 56 data bytes
+64 bytes from 5.255.255.242: seq=0 ttl=241 time=45.327 ms
+64 bytes from 5.255.255.242: seq=1 ttl=241 time=45.432 ms
+64 bytes from 5.255.255.242: seq=2 ttl=241 time=45.490 ms
+^C
+controlplane $ 
+controlplane $ kubectl exec tb -- ping ya.ru
+PING ya.ru (77.88.55.242): 56 data bytes
+64 bytes from 77.88.55.242: seq=0 ttl=241 time=43.623 ms
+64 bytes from 77.88.55.242: seq=1 ttl=241 time=43.701 ms
+^C
+controlplane $ 
+controlplane $ kubectl exec ta -- ping ta
+PING ta (192.168.1.3): 56 data bytes
+64 bytes from 192.168.1.3: seq=0 ttl=64 time=0.082 ms
+64 bytes from 192.168.1.3: seq=1 ttl=64 time=0.100 ms
+^C
+controlplane $ 
+controlplane $ kubectl exec ta -- ping tb
+ping: bad address 'tb'
+command terminated with exit code 1
+controlplane $ 
+controlplane $ vi np-ta.yml 
+controlplane $ 
+controlplane $ kubectl get svc -A
+NAMESPACE     NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+default       kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP                  25d
+kube-system   kube-dns     ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   25d
+controlplane $ 
+controlplane $ 
+```
+- Logs 1
 ```
 Initialising Kubernetes... done
 
