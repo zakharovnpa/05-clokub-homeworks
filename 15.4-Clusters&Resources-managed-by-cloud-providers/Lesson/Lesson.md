@@ -4,6 +4,17 @@
 Размещение в private подсетях кластера БД, а в public - кластера Kubernetes.
 
 ---
+
+## Полезные ссылки из лекции
+- [Zalando-Patroni: шаблон для PostgreSQL HA с ZooKeeper, etcd или Consul](https://github.com/zalando/patroni)
+- [Replication Manager for PosgresSQL](https://repmgr.org/)
+- [Knative is an Open-Source Enterprise-level
+solution to build Serverless and Event Driven Applications](https://knative.dev/docs/)
+- [Building a virtualization API for Kubernetes](https://kubevirt.io/) - возможность запуска ВМ с разными ОС на нодах K8S
+- [Bringing MySQL to the web](https://www.phpmyadmin.net/) - админка для MySQL
+- [pgAdmin PostgreSQL Tools](https://www.pgadmin.org/) - админка для PostgreSQL
+
+---
 ## Задание 1. Яндекс.Облако (обязательное к выполнению)
 
 1. Настроить с помощью Terraform кластер баз данных MySQL:
